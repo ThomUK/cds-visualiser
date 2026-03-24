@@ -1,6 +1,6 @@
 #' schema_browser UI Function
 #' @noRd
-#' @importFrom shiny NS checkboxInput uiOutput
+#' @importFrom shiny NS radioButtons uiOutput
 #' @importFrom bslib layout_sidebar sidebar layout_columns card card_header card_body
 #' @importFrom jsTreeR jstreeOutput
 mod_schema_browser_ui <- function(id) {
@@ -23,7 +23,16 @@ mod_schema_browser_ui <- function(id) {
         ),
         selected = "130"
       ),
-      shiny::checkboxInput(ns("required_only"), "Required fields only", value = TRUE)
+      shiny::radioButtons(
+        ns("field_filter"),
+        "Show fields",
+        choices = c(
+          "All" = "all",
+          "Required only" = "required",
+          "Optional only" = "optional"
+        ),
+        selected = "required"
+      )
     ),
     bslib::layout_columns(
       col_widths = c(5, 7),
@@ -57,7 +66,11 @@ mod_schema_browser_server <- function(id, schema_data) {
         schema_data()$elements,
         purrr::map_lgl(cds_types, ~ code %in% .x)
       )
-      if (input$required_only) els <- dplyr::filter(els, is_required)
+      els <- switch(input$field_filter,
+        required = dplyr::filter(els, is_required),
+        optional = dplyr::filter(els, !is_required),
+        els
+      )
       els
     })
 
