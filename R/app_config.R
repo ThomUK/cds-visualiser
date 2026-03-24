@@ -15,14 +15,14 @@ app_sys <- function(...) {
 #' @importFrom golem get_golem_config
 #' @noRd
 get_golem_config <- function(value,
-                              config = Sys.getenv(
-                                "GOLEM_CONFIG_ACTIVE",
-                                Sys.getenv(
-                                  "R_CONFIG_ACTIVE",
-                                  "default"
-                                )
-                              ),
-                              use_parent = TRUE) {
+                             config = Sys.getenv(
+                               "GOLEM_CONFIG_ACTIVE",
+                               Sys.getenv(
+                                 "R_CONFIG_ACTIVE",
+                                 "default"
+                               )
+                             ),
+                             use_parent = TRUE) {
   golem::get_golem_config(
     value = value,
     config = config,

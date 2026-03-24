@@ -10,7 +10,7 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     bslib::page_navbar(
       title = "CDS Visualiser",
-      id    = "main_nav",
+      id = "main_nav",
       theme = bslib::bs_theme(
         version    = 5,
         bootswatch = "flatly",

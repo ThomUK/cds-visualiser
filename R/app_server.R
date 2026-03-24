@@ -4,7 +4,6 @@
 #' @importFrom shiny reactiveVal observeEvent showNotification removeNotification
 #' @noRd
 app_server <- function(input, output, session) {
-
   # --- Shared schema data reactive ---
   schema_rds_path <- system.file("extdata/schema_data.rds", package = "cdsvisualiser")
 
@@ -25,29 +24,32 @@ app_server <- function(input, output, session) {
       id       = "parsing_notif"
     )
 
-    tryCatch({
-      xsd_dir  <- system.file("extdata/xsd", package = "cdsvisualiser")
-      new_data <- parse_cds_schema(xsd_dir)
+    tryCatch(
+      {
+        xsd_dir <- system.file("extdata/xsd", package = "cdsvisualiser")
+        new_data <- parse_cds_schema(xsd_dir)
 
-      # Persist for future app restarts
-      saveRDS(new_data, system.file("extdata/schema_data.rds", package = "cdsvisualiser"))
+        # Persist for future app restarts
+        saveRDS(new_data, system.file("extdata/schema_data.rds", package = "cdsvisualiser"))
 
-      schema_data(new_data)
-      shiny::removeNotification("parsing_notif")
-      shiny::showNotification("Schema reloaded successfully.", type = "message")
-    }, error = function(e) {
-      shiny::removeNotification("parsing_notif")
-      shiny::showNotification(
-        glue::glue("Parse error: {conditionMessage(e)}"),
-        type     = "error",
-        duration = 10
-      )
-    })
+        schema_data(new_data)
+        shiny::removeNotification("parsing_notif")
+        shiny::showNotification("Schema reloaded successfully.", type = "message")
+      },
+      error = function(e) {
+        shiny::removeNotification("parsing_notif")
+        shiny::showNotification(
+          glue::glue("Parse error: {conditionMessage(e)}"),
+          type     = "error",
+          duration = 10
+        )
+      }
+    )
   })
 
   # --- Module servers ---
-  mod_schema_browser_server("schema_browser",      schema_data)
-  mod_data_dictionary_server("data_dictionary",    schema_data)
+  mod_schema_browser_server("schema_browser", schema_data)
+  mod_data_dictionary_server("data_dictionary", schema_data)
   mod_process_guide_server("process_guide")
   mod_synthetic_examples_server("synthetic_examples", schema_data)
 }

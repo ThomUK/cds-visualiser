@@ -14,18 +14,20 @@ skip_if_no_xsd <- function() {
 
 test_that("extract_simple_types returns >= 299 rows", {
   skip_if_no_xsd()
-  doc   <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
+  doc <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
   types <- extract_simple_types(doc)
 
   expect_s3_class(types, "data.frame")
   expect_gte(nrow(types), 299)
-  expect_true(all(c("type_name", "base_type", "pattern", "min_length",
-                     "max_length", "annotation") %in% names(types)))
+  expect_true(all(c(
+    "type_name", "base_type", "pattern", "min_length",
+    "max_length", "annotation"
+  ) %in% names(types)))
 })
 
 test_that("extract_simple_types captures constraints correctly", {
   skip_if_no_xsd()
-  doc   <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
+  doc <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
   types <- extract_simple_types(doc)
 
   # Date_Type uses minInclusive/maxInclusive (not pattern)
@@ -46,7 +48,7 @@ test_that("extract_simple_types captures constraints correctly", {
 
 test_that("AttendedOrDidNotAttendCode_Type does NOT include code '1'", {
   skip_if_no_xsd()
-  doc   <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
+  doc <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
   enums <- extract_enumerations(doc)
 
   att <- dplyr::filter(enums, type_name == "AttendedOrDidNotAttendCode_Type")
@@ -56,7 +58,7 @@ test_that("AttendedOrDidNotAttendCode_Type does NOT include code '1'", {
 
 test_that("PresentOnAdmissionIndicator types have exactly Y, N, 8", {
   skip_if_no_xsd()
-  doc   <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
+  doc <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
   enums <- extract_enumerations(doc)
 
   poi <- dplyr::filter(enums, stringr::str_detect(type_name, "PresentOnAdmission"))
@@ -69,7 +71,7 @@ test_that("PresentOnAdmissionIndicator types have exactly Y, N, 8", {
 
 test_that("PersonGenderCode_Type has correct CDS v6.3.1 values (1, 2, 9, X)", {
   skip_if_no_xsd()
-  doc   <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
+  doc <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
   enums <- extract_enumerations(doc)
 
   # CDS v6.3.1 uses legacy gender codes: 1=Male, 2=Female, 9=Not specified, X=Not known
@@ -84,7 +86,7 @@ test_that("PersonGenderCode_Type has correct CDS v6.3.1 values (1, 2, 9, X)", {
 
 test_that("AdmissionMethodCode has exactly 19 values", {
   skip_if_no_xsd()
-  doc   <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
+  doc <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
   enums <- extract_enumerations(doc)
 
   amc <- dplyr::filter(enums, type_name == "AdmissionMethodCode_HospitalProviderSpell_Type")
@@ -93,7 +95,7 @@ test_that("AdmissionMethodCode has exactly 19 values", {
 
 test_that("DischargeDestinationCode has 22 values", {
   skip_if_no_xsd()
-  doc   <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
+  doc <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
   enums <- extract_enumerations(doc)
 
   ddc <- dplyr::filter(enums, type_name == "DischargeDestinationCode_HospitalProviderSpell_Type")
@@ -105,7 +107,7 @@ test_that("DischargeDestinationCode has 22 values", {
 
 test_that("extract_enumerations returns type_name, value, annotation columns", {
   skip_if_no_xsd()
-  doc   <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
+  doc <- xml2::read_xml(file.path(xsd_dir, "CDS-XML_Standard_Data_Elements-V6-3-1.xsd"))
   enums <- extract_enumerations(doc)
 
   expect_s3_class(enums, "data.frame")
@@ -148,15 +150,19 @@ test_that("FinishedGeneralEpisode_Structure is present in complex types", {
 
 # Cache parsed schema for reuse across tests (expensive to re-parse)
 local_schema <- local({
-  if (!dir.exists(xsd_dir)) return(NULL)
+  if (!dir.exists(xsd_dir)) {
+    return(NULL)
+  }
   parse_cds_schema(xsd_dir)
 })
 
 test_that("parse_cds_schema returns all expected list components", {
   skip_if_no_xsd()
   expect_type(local_schema, "list")
-  expect_true(all(c("elements", "types", "enumerations",
-                     "complex_types", "tree_data") %in% names(local_schema)))
+  expect_true(all(c(
+    "elements", "types", "enumerations",
+    "complex_types", "tree_data"
+  ) %in% names(local_schema)))
 })
 
 test_that("CDS 130 has > 30 elements", {
@@ -179,8 +185,10 @@ test_that("CDS 020 has > 20 elements", {
 
 test_that("elements tibble has required columns", {
   skip_if_no_xsd()
-  required_cols <- c("element_name", "type_name", "min_occurs", "max_occurs",
-                      "xpath", "cds_types", "is_required", "parent_xpath")
+  required_cols <- c(
+    "element_name", "type_name", "min_occurs", "max_occurs",
+    "xpath", "cds_types", "is_required", "parent_xpath"
+  )
   expect_true(all(required_cols %in% names(local_schema$elements)))
 })
 
@@ -208,7 +216,7 @@ test_that("cds_types list-column contains character vectors", {
 test_that("all 9 CDS types are represented in elements", {
   skip_if_no_xsd()
   all_codes <- unique(unlist(local_schema$elements$cds_types))
-  expected  <- c("020", "120", "130", "140", "150", "160", "180", "190", "200")
+  expected <- c("020", "120", "130", "140", "150", "160", "180", "190", "200")
   expect_true(all(expected %in% all_codes))
 })
 

@@ -82,7 +82,7 @@ test_that("include_optional=TRUE produces longer output than include_optional=FA
 
 test_that("required-only output contains the CDS type root element", {
   result <- generate_synthetic_xml(schema_data, "130", include_optional = FALSE)
-  doc    <- xml2::read_xml(result)
+  doc <- xml2::read_xml(result)
   # Root element name should match the CDS 130 root structure
   root_name <- xml2::xml_name(xml2::xml_root(doc))
   expect_type(root_name, "character")
@@ -95,8 +95,8 @@ test_that("output XML contains no NA text values", {
 })
 
 test_that("output XML contains no empty element values for required fields", {
-  result  <- generate_synthetic_xml(schema_data, "130", include_optional = FALSE)
-  doc     <- xml2::read_xml(result)
+  result <- generate_synthetic_xml(schema_data, "130", include_optional = FALSE)
+  doc <- xml2::read_xml(result)
   # Leaf text nodes should not be empty strings
   all_text <- xml2::xml_text(xml2::xml_find_all(doc, "//*[not(*)]"))
   # Filter to non-empty (some structural elements may be empty containers)

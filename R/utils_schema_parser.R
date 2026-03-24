@@ -31,7 +31,7 @@ parse_cds_schema <- function(xsd_dir) {
   )
 
   # --- Extract type definitions ---
-  types        <- extract_simple_types(xsd_files$elements)
+  types <- extract_simple_types(xsd_files$elements)
   enumerations <- extract_enumerations(xsd_files$elements)
   complex_types <- extract_complex_types(unname(xsd_files))
 
@@ -48,7 +48,7 @@ parse_cds_schema <- function(xsd_dir) {
     "200" = xsd_files$cds_200
   )
 
-  elements  <- build_elements_tibble(cds_type_map, complex_types)
+  elements <- build_elements_tibble(cds_type_map, complex_types)
   tree_data <- build_tree_data(elements)
 
   list(
@@ -74,7 +74,7 @@ extract_simple_types <- function(doc) {
   nodes <- xml2::xml_find_all(doc, ".//xs:simpleType[@name]", XS_NS)
 
   purrr::map_dfr(nodes, function(node) {
-    type_name   <- xml2::xml_attr(node, "name")
+    type_name <- xml2::xml_attr(node, "name")
     restriction <- xml2::xml_find_first(node, ".//xs:restriction", XS_NS)
 
     if (inherits(restriction, "xml_missing")) {
@@ -84,7 +84,9 @@ extract_simple_types <- function(doc) {
     }
 
     get_facet <- function(facet_name) {
-      if (inherits(restriction, "xml_missing")) return(NA_character_)
+      if (inherits(restriction, "xml_missing")) {
+        return(NA_character_)
+      }
       n <- xml2::xml_find_first(restriction, paste0("xs:", facet_name), XS_NS)
       if (inherits(n, "xml_missing")) NA_character_ else xml2::xml_attr(n, "value")
     }
@@ -117,9 +119,11 @@ extract_enumerations <- function(doc) {
   nodes <- xml2::xml_find_all(doc, ".//xs:simpleType[@name]", XS_NS)
 
   purrr::map_dfr(nodes, function(node) {
-    type_name  <- xml2::xml_attr(node, "name")
+    type_name <- xml2::xml_attr(node, "name")
     enum_nodes <- xml2::xml_find_all(node, ".//xs:enumeration", XS_NS)
-    if (length(enum_nodes) == 0L) return(NULL)
+    if (length(enum_nodes) == 0L) {
+      return(NULL)
+    }
 
     tibble::tibble(
       type_name  = type_name,
@@ -139,7 +143,7 @@ extract_enumerations <- function(doc) {
 #' @noRd
 extract_complex_types <- function(docs) {
   all_entries <- purrr::map(docs, function(doc) {
-    nodes     <- xml2::xml_find_all(doc, ".//xs:complexType[@name]", XS_NS)
+    nodes <- xml2::xml_find_all(doc, ".//xs:complexType[@name]", XS_NS)
     type_names <- xml2::xml_attr(nodes, "name")
     purrr::set_names(as.list(nodes), type_names)
   })
@@ -161,7 +165,9 @@ build_elements_tibble <- function(cds_type_map, complex_types) {
   rows_by_cds <- purrr::imap(cds_type_map, function(doc, cds_code) {
     # The root complexType of each CDS-type XSD defines the message structure
     root_node <- xml2::xml_find_first(doc, ".//xs:complexType[@name]", XS_NS)
-    if (inherits(root_node, "xml_missing")) return(NULL)
+    if (inherits(root_node, "xml_missing")) {
+      return(NULL)
+    }
 
     root_name <- xml2::xml_attr(root_node, "name")
 
@@ -176,7 +182,9 @@ build_elements_tibble <- function(cds_type_map, complex_types) {
   })
 
   all_rows <- dplyr::bind_rows(rows_by_cds)
-  if (nrow(all_rows) == 0L) return(all_rows)
+  if (nrow(all_rows) == 0L) {
+    return(all_rows)
+  }
 
   # Merge duplicate elements (same xpath) that appear in multiple CDS types
   all_rows |>
@@ -202,14 +210,18 @@ build_elements_tibble <- function(cds_type_map, complex_types) {
 #' Recursively walk a named complexType and collect all descendant elements
 #' @noRd
 walk_complex_type <- function(type_name, xpath_prefix, cds_code,
-                               complex_types, visited, depth,
-                               in_choice = FALSE) {
+                              complex_types, visited, depth,
+                              in_choice = FALSE) {
   # Cycle guard and depth limit
-  if (depth > 25L || type_name %in% visited) return(NULL)
+  if (depth > 25L || type_name %in% visited) {
+    return(NULL)
+  }
   visited <- c(visited, type_name)
 
   type_node <- complex_types[[type_name]]
-  if (is.null(type_node)) return(NULL)
+  if (is.null(type_node)) {
+    return(NULL)
+  }
 
   walk_element_list(
     parent_node   = type_node,
@@ -228,32 +240,43 @@ walk_complex_type <- function(type_name, xpath_prefix, cds_code,
 #' (in_choice=TRUE) separately to avoid xml2 node identity comparison issues.
 #' @noRd
 walk_element_list <- function(parent_node, xpath_prefix, cds_code,
-                               complex_types, visited, depth,
-                               in_choice = FALSE) {
-
+                              complex_types, visited, depth,
+                              in_choice = FALSE) {
   # Sequence elements (not inside a nested xs:choice)
-  seq_elements <- xml2::xml_find_all(parent_node,
-    paste0("xs:sequence/xs:element",
-           " | xs:complexContent/xs:extension/xs:sequence/xs:element"),
-    XS_NS)
+  seq_elements <- xml2::xml_find_all(
+    parent_node,
+    paste0(
+      "xs:sequence/xs:element",
+      " | xs:complexContent/xs:extension/xs:sequence/xs:element"
+    ),
+    XS_NS
+  )
 
   # Choice elements (the element IS inside a xs:choice)
-  choice_elements <- xml2::xml_find_all(parent_node,
+  choice_elements <- xml2::xml_find_all(
+    parent_node,
     "xs:sequence/xs:choice/xs:element | xs:choice/xs:element",
-    XS_NS)
+    XS_NS
+  )
 
-  if (length(seq_elements) == 0L && length(choice_elements) == 0L) return(NULL)
+  if (length(seq_elements) == 0L && length(choice_elements) == 0L) {
+    return(NULL)
+  }
 
   process_elements <- function(els, this_in_choice) {
-    if (length(els) == 0L) return(NULL)
+    if (length(els) == 0L) {
+      return(NULL)
+    }
     purrr::map_dfr(els, function(el) {
       el_name <- xml2::xml_attr(el, "name")
-      if (is.na(el_name)) return(NULL)  # skip ref= elements
+      if (is.na(el_name)) {
+        return(NULL)
+      } # skip ref= elements
 
-      el_type   <- xml2::xml_attr(el, "type")
+      el_type <- xml2::xml_attr(el, "type")
       # xml_attr returns NA (not NULL) for absent attributes; use coalesce not %||%
-      min_occ   <- dplyr::coalesce(xml2::xml_attr(el, "minOccurs"), "1")
-      max_occ   <- dplyr::coalesce(xml2::xml_attr(el, "maxOccurs"), "1")
+      min_occ <- dplyr::coalesce(xml2::xml_attr(el, "minOccurs"), "1")
+      max_occ <- dplyr::coalesce(xml2::xml_attr(el, "maxOccurs"), "1")
       this_xpath <- glue::glue("{xpath_prefix}/{el_name}")
 
       # Strip namespace prefix (ns:TypeName -> TypeName)
@@ -281,7 +304,7 @@ walk_element_list <- function(parent_node, xpath_prefix, cds_code,
 
       # Recurse into named complexType
       children <- if (!is.na(el_type_clean) &&
-                      el_type_clean %in% names(complex_types)) {
+        el_type_clean %in% names(complex_types)) {
         walk_complex_type(
           type_name     = el_type_clean,
           xpath_prefix  = this_xpath,
@@ -304,15 +327,19 @@ walk_element_list <- function(parent_node, xpath_prefix, cds_code,
             depth         = depth + 1L,
             in_choice     = eff_in_choice
           )
-        } else NULL
-      } else NULL
+        } else {
+          NULL
+        }
+      } else {
+        NULL
+      }
 
       dplyr::bind_rows(this_row, children)
     })
   }
 
   dplyr::bind_rows(
-    process_elements(seq_elements,    this_in_choice = FALSE),
+    process_elements(seq_elements, this_in_choice = FALSE),
     process_elements(choice_elements, this_in_choice = TRUE)
   )
 }
@@ -354,7 +381,9 @@ build_subtree <- function(elements, parent) {
       dplyr::filter(parent_xpath == parent)
   }
 
-  if (nrow(children_rows) == 0L) return(list())
+  if (nrow(children_rows) == 0L) {
+    return(list())
+  }
 
   purrr::pmap(
     list(
@@ -374,10 +403,10 @@ build_subtree <- function(elements, parent) {
       }
 
       list(
-        text     = element_name,
-        id       = stringr::str_replace_all(xpath, "[^A-Za-z0-9_-]", "_"),
-        icon     = icon,
-        data     = list(
+        text = element_name,
+        id = stringr::str_replace_all(xpath, "[^A-Za-z0-9_-]", "_"),
+        icon = icon,
+        data = list(
           xpath     = xpath,
           type      = type_name %||% "",
           required  = is_required,
@@ -397,7 +426,9 @@ build_subtree <- function(elements, parent) {
 #' @noRd
 extract_annotation <- function(node) {
   doc_node <- xml2::xml_find_first(node, ".//xs:annotation/xs:documentation", XS_NS)
-  if (inherits(doc_node, "xml_missing")) return(NA_character_)
+  if (inherits(doc_node, "xml_missing")) {
+    return(NA_character_)
+  }
   stringr::str_squish(xml2::xml_text(doc_node))
 }
 

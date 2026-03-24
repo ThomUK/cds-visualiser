@@ -41,14 +41,13 @@ mod_data_dictionary_ui <- function(id) {
 #' @importFrom reactable renderReactable reactable colDef getReactableState
 mod_data_dictionary_server <- function(id, schema_data) {
   shiny::moduleServer(id, function(input, output, session) {
-
     filtered_elements <- shiny::reactive({
       shiny::req(schema_data())
       els <- schema_data()$elements
 
       if (input$cds_filter != "all") {
         code <- input$cds_filter
-        els  <- dplyr::filter(els, purrr::map_lgl(cds_types, ~ code %in% .x))
+        els <- dplyr::filter(els, purrr::map_lgl(cds_types, ~ code %in% .x))
       }
       if (input$required_only) {
         els <- dplyr::filter(els, is_required)
@@ -56,7 +55,7 @@ mod_data_dictionary_server <- function(id, schema_data) {
 
       dplyr::mutate(els,
         path_label = stringr::str_replace_all(xpath, "^/", "") |>
-                       stringr::str_replace_all("/", " \u203a ")
+          stringr::str_replace_all("/", " \u203a ")
       ) |>
         dplyr::select(element_name, type_name, is_required, path_label, xpath, annotation)
     })
@@ -65,22 +64,22 @@ mod_data_dictionary_server <- function(id, schema_data) {
       shiny::req(filtered_elements())
       reactable::reactable(
         dplyr::select(filtered_elements(), element_name, type_name, is_required, path_label, annotation),
-        searchable      = TRUE,
-        striped         = TRUE,
-        highlight       = TRUE,
-        selection       = "single",
-        onClick         = "select",
+        searchable = TRUE,
+        striped = TRUE,
+        highlight = TRUE,
+        selection = "single",
+        onClick = "select",
         defaultPageSize = 20,
         columns = list(
-          element_name = reactable::colDef(name = "Element",   minWidth = 160),
-          type_name    = reactable::colDef(name = "Type",      minWidth = 160, na = "\u2013"),
-          is_required  = reactable::colDef(
+          element_name = reactable::colDef(name = "Element", minWidth = 160),
+          type_name = reactable::colDef(name = "Type", minWidth = 160, na = "\u2013"),
+          is_required = reactable::colDef(
             name     = "Required",
             maxWidth = 90,
             cell     = function(val) if (isTRUE(val)) "\u2713" else ""
           ),
-          path_label   = reactable::colDef(name = "Path",        minWidth = 220),
-          annotation   = reactable::colDef(name = "Description", minWidth = 200, na = "")
+          path_label = reactable::colDef(name = "Path", minWidth = 220),
+          annotation = reactable::colDef(name = "Description", minWidth = 200, na = "")
         )
       )
     })
@@ -92,17 +91,17 @@ mod_data_dictionary_server <- function(id, schema_data) {
     })
 
     output$type_detail <- shiny::renderUI({
-      row     <- shiny::req(selected_row())
+      row <- shiny::req(selected_row())
       type_nm <- row$type_name %||% ""
       if (is.na(type_nm)) type_nm <- ""
-      sd      <- schema_data()
+      sd <- schema_data()
 
       if (nchar(type_nm) > 0) {
-        type_info <- dplyr::filter(sd$types,        type_name == !!type_nm)
-        enums     <- dplyr::filter(sd$enumerations, type_name == !!type_nm)
+        type_info <- dplyr::filter(sd$types, type_name == !!type_nm)
+        enums <- dplyr::filter(sd$enumerations, type_name == !!type_nm)
       } else {
         type_info <- sd$types[0L, ]
-        enums     <- sd$enumerations[0L, ]
+        enums <- sd$enumerations[0L, ]
       }
 
       shiny::tagList(
@@ -111,9 +110,9 @@ mod_data_dictionary_server <- function(id, schema_data) {
           shiny::tags$em(if (!is.na(type_nm)) type_nm else "(complex type)"),
           style = "font-size:0.85em; color:#666; margin-bottom:4px"
         ),
-        if (!is.na(row$annotation) && nchar(row$annotation) > 0)
-          shiny::tags$p(row$annotation, style = "font-size:0.85em"),
-
+        if (!is.na(row$annotation) && nchar(row$annotation) > 0) {
+          shiny::tags$p(row$annotation, style = "font-size:0.85em")
+        },
         if (nrow(type_info) > 0) {
           constraints <- list(
             "Base type"    = type_info$base_type[[1]],
@@ -137,27 +136,28 @@ mod_data_dictionary_server <- function(id, schema_data) {
             )
           }
         },
-
-        if (nrow(enums) > 0) shiny::tagList(
-          shiny::tags$p(
-            shiny::tags$strong(glue::glue("Valid codes ({nrow(enums)})")),
-            style = "font-size:0.85em; margin-bottom:2px"
-          ),
-          shiny::tags$div(
-            style = "max-height:220px; overflow-y:auto; font-size:0.8em",
-            shiny::tags$table(
-              class = "table table-sm table-hover",
-              shiny::tags$tbody(
-                lapply(seq_len(nrow(enums)), function(i) {
-                  shiny::tags$tr(
-                    shiny::tags$td(enums$value[[i]], style = "font-weight:600; white-space:nowrap"),
-                    shiny::tags$td(enums$annotation[[i]] %||% "")
-                  )
-                })
+        if (nrow(enums) > 0) {
+          shiny::tagList(
+            shiny::tags$p(
+              shiny::tags$strong(glue::glue("Valid codes ({nrow(enums)})")),
+              style = "font-size:0.85em; margin-bottom:2px"
+            ),
+            shiny::tags$div(
+              style = "max-height:220px; overflow-y:auto; font-size:0.8em",
+              shiny::tags$table(
+                class = "table table-sm table-hover",
+                shiny::tags$tbody(
+                  lapply(seq_len(nrow(enums)), function(i) {
+                    shiny::tags$tr(
+                      shiny::tags$td(enums$value[[i]], style = "font-weight:600; white-space:nowrap"),
+                      shiny::tags$td(enums$annotation[[i]] %||% "")
+                    )
+                  })
+                )
               )
             )
           )
-        )
+        }
       )
     })
   })

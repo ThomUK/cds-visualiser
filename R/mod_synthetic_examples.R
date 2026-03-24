@@ -27,7 +27,7 @@ mod_synthetic_examples_ui <- function(id) {
       shiny::checkboxInput(ns("include_optional"), "Include optional fields", value = FALSE),
       shiny::actionButton(
         ns("generate"), "Generate XML",
-        icon  = shiny::icon("code"),
+        icon = shiny::icon("code"),
         class = "btn-primary w-100 mt-2"
       ),
       shiny::hr(),
@@ -65,7 +65,6 @@ mod_synthetic_examples_ui <- function(id) {
 #' @importFrom tibble tibble
 mod_synthetic_examples_server <- function(id, schema_data) {
   shiny::moduleServer(id, function(input, output, session) {
-
     xml_result <- shiny::eventReactive(input$generate, {
       shiny::req(schema_data())
       generate_synthetic_xml(
@@ -81,10 +80,10 @@ mod_synthetic_examples_server <- function(id, schema_data) {
 
     output$items_table <- reactable::renderReactable({
       xml <- shiny::req(xml_result())
-      sd  <- schema_data()
+      sd <- schema_data()
 
       # Parse XML and extract all leaf nodes (elements with text content)
-      doc    <- xml2::read_xml(xml)
+      doc <- xml2::read_xml(xml)
       leaves <- xml2::xml_find_all(doc, "//*[not(*)]")
 
       items <- tibble::tibble(
@@ -95,19 +94,20 @@ mod_synthetic_examples_server <- function(id, schema_data) {
       # Join annotation from schema for context
       annotations <- dplyr::distinct(
         dplyr::select(sd$elements, element_name, annotation),
-        element_name, .keep_all = TRUE
+        element_name,
+        .keep_all = TRUE
       )
       items <- dplyr::left_join(items, annotations, by = "element_name")
 
       reactable::reactable(
         items,
-        striped         = TRUE,
-        highlight       = TRUE,
-        searchable      = TRUE,
+        striped = TRUE,
+        highlight = TRUE,
+        searchable = TRUE,
         defaultPageSize = 20,
         columns = list(
-          element_name = reactable::colDef(name = "Item",        minWidth = 180),
-          value        = reactable::colDef(name = "Value",       minWidth = 120),
+          element_name = reactable::colDef(name = "Item", minWidth = 180),
+          value        = reactable::colDef(name = "Value", minWidth = 120),
           annotation   = reactable::colDef(name = "Description", minWidth = 200, na = "")
         )
       )

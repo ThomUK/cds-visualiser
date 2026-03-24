@@ -44,19 +44,31 @@ mod_process_guide_ui <- function(id) {
           bslib::card_header("Key terms"),
           bslib::card_body(
             shiny::tags$dl(
-              .guide_term("Spell",
-                "A continuous period of care under one provider. Starts on admission, ends on discharge."),
-              .guide_term("Episode",
-                "A period of care under one consultant. A spell contains one or more episodes."),
-              .guide_term("HRG",
-                "Healthcare Resource Group — a clinical category used to set the payment tariff."),
-              .guide_term("SUS+",
-                "Secondary Uses Service — the NHS England portal that receives CDS submissions."),
-              .guide_term("SLAM",
-                "Service Line Activity Monitoring — internal reporting often fed from CDS data."),
-              .guide_term("CDS type",
+              .guide_term(
+                "Spell",
+                "A continuous period of care under one provider. Starts on admission, ends on discharge."
+              ),
+              .guide_term(
+                "Episode",
+                "A period of care under one consultant. A spell contains one or more episodes."
+              ),
+              .guide_term(
+                "HRG",
+                "Healthcare Resource Group — a clinical category used to set the payment tariff."
+              ),
+              .guide_term(
+                "SUS+",
+                "Secondary Uses Service — the NHS England portal that receives CDS submissions."
+              ),
+              .guide_term(
+                "SLAM",
+                "Service Line Activity Monitoring — internal reporting often fed from CDS data."
+              ),
+              .guide_term(
+                "CDS type",
                 "Each XML message type covers a specific category of patient activity
-                 (e.g. 130 = Finished General Episode, 020 = Outpatient).")
+                 (e.g. 130 = Finished General Episode, 020 = Outpatient)."
+              )
             )
           )
         )
@@ -84,27 +96,45 @@ mod_process_guide_ui <- function(id) {
               )
             ),
             shiny::tags$tbody(
-              .cds_type_row("130", "Finished General Episode",
+              .cds_type_row(
+                "130", "Finished General Episode",
                 "Elective and emergency inpatient admissions that have been discharged.
-                 Largest volume CDS type; drives the majority of PbR income.", TRUE),
-              .cds_type_row("020", "Outpatient",
+                 Largest volume CDS type; drives the majority of PbR income.", TRUE
+              ),
+              .cds_type_row(
+                "020", "Outpatient",
                 "Consultant-led outpatient clinic attendances. High volume; includes
-                 first and follow-up appointments.", TRUE),
-              .cds_type_row("120", "Finished Birth Episode",
-                "Maternity — baby's birth episode (admitted patient care).", TRUE),
-              .cds_type_row("140", "Finished Delivery Episode",
-                "Maternity — mother's delivery episode.", TRUE),
-              .cds_type_row("180", "Unfinished Birth Episode",
-                "Birth episode where the baby is still an inpatient at month end.", FALSE),
-              .cds_type_row("190", "Unfinished General Episode",
-                "General episode where the patient is still admitted at month end.", FALSE),
-              .cds_type_row("200", "Unfinished Delivery Episode",
-                "Delivery episode where the mother is still an inpatient at month end.", FALSE),
-              .cds_type_row("150", "Other Birth Event",
+                 first and follow-up appointments.", TRUE
+              ),
+              .cds_type_row(
+                "120", "Finished Birth Episode",
+                "Maternity — baby's birth episode (admitted patient care).", TRUE
+              ),
+              .cds_type_row(
+                "140", "Finished Delivery Episode",
+                "Maternity — mother's delivery episode.", TRUE
+              ),
+              .cds_type_row(
+                "180", "Unfinished Birth Episode",
+                "Birth episode where the baby is still an inpatient at month end.", FALSE
+              ),
+              .cds_type_row(
+                "190", "Unfinished General Episode",
+                "General episode where the patient is still admitted at month end.", FALSE
+              ),
+              .cds_type_row(
+                "200", "Unfinished Delivery Episode",
+                "Delivery episode where the mother is still an inpatient at month end.", FALSE
+              ),
+              .cds_type_row(
+                "150", "Other Birth Event",
                 "Maternity births that don't result in an admitted patient episode
-                 (e.g. home births).", FALSE),
-              .cds_type_row("160", "Other Delivery",
-                "Maternity deliveries occurring outside an admitted episode.", FALSE)
+                 (e.g. home births).", FALSE
+              ),
+              .cds_type_row(
+                "160", "Other Delivery",
+                "Maternity deliveries occurring outside an admitted episode.", FALSE
+              )
             )
           )
         )
@@ -129,16 +159,26 @@ mod_process_guide_ui <- function(id) {
           bslib::card_header("Key dates"),
           bslib::card_body(
             shiny::tags$ul(
-              shiny::tags$li(shiny::tags$strong("Month end:"),
-                " Activity is frozen in PAS."),
-              shiny::tags$li(shiny::tags$strong("Day 1\u20135:"),
-                " CDS extract generated and validated locally."),
-              shiny::tags$li(shiny::tags$strong("Day 5\u201311:"),
-                " Submission window open; files uploaded to SUS+."),
-              shiny::tags$li(shiny::tags$strong("Reconciliation:"),
-                " SUS+ feedback files checked; rejected records investigated."),
-              shiny::tags$li(shiny::tags$strong("SLAM / Tariff:"),
-                " HRG grouping applied; payment calculated by commissioner.")
+              shiny::tags$li(
+                shiny::tags$strong("Month end:"),
+                " Activity is frozen in PAS."
+              ),
+              shiny::tags$li(
+                shiny::tags$strong("Day 1\u20135:"),
+                " CDS extract generated and validated locally."
+              ),
+              shiny::tags$li(
+                shiny::tags$strong("Day 5\u201311:"),
+                " Submission window open; files uploaded to SUS+."
+              ),
+              shiny::tags$li(
+                shiny::tags$strong("Reconciliation:"),
+                " SUS+ feedback files checked; rejected records investigated."
+              ),
+              shiny::tags$li(
+                shiny::tags$strong("SLAM / Tariff:"),
+                " HRG grouping applied; payment calculated by commissioner."
+              )
             ),
             shiny::tags$hr(),
             shiny::tags$p(
@@ -242,8 +282,7 @@ mod_process_guide_server <- function(id) {
         style L fill:#007f3b,color:#fff
         style D fill:#ffb81c,color:#000
         style H fill:#ffb81c,color:#000
-      "
-      )
+      ")
     )
   })
 }
@@ -266,8 +305,11 @@ mod_process_guide_server <- function(id) {
     shiny::tags$td(name),
     shiny::tags$td(description, style = "font-size:0.9em"),
     shiny::tags$td(
-      if (priority) shiny::tags$span("High", class = "badge bg-primary")
-      else          shiny::tags$span("Standard", class = "badge bg-secondary")
+      if (priority) {
+        shiny::tags$span("High", class = "badge bg-primary")
+      } else {
+        shiny::tags$span("Standard", class = "badge bg-secondary")
+      }
     )
   )
 }

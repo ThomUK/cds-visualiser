@@ -18,13 +18,13 @@ suppressMessages({
 # Source parser utils
 source(here("R/utils_schema_parser.R"))
 
-xsd_dir  <- here("inst/extdata/xsd")
+xsd_dir <- here("inst/extdata/xsd")
 out_path <- here("inst/extdata/schema_data.rds")
 
 message("Parsing CDS XSD files from: ", xsd_dir)
-t0          <- proc.time()
+t0 <- proc.time()
 schema_data <- parse_cds_schema(xsd_dir)
-elapsed     <- round((proc.time() - t0)[["elapsed"]], 1)
+elapsed <- round((proc.time() - t0)[["elapsed"]], 1)
 
 message(sprintf(
   "Done in %.1fs: %d elements, %d types, %d enumeration values, %d CDS types",
