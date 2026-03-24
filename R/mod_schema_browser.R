@@ -118,6 +118,23 @@ mod_schema_browser_server <- function(id, schema_data) {
           )
         ),
 
+        # NHS Data Dictionary link — only for leaf elements (simple types only)
+        if (nrow(type_info) > 0)
+          shiny::tags$p(
+            shiny::tags$a(
+              href   = .dd_url(node_data$element_name %||% label),
+              target = "_blank",
+              rel    = "noopener noreferrer",
+              shiny::icon("arrow-up-right-from-square"),
+              " NHS Data Dictionary",
+              style  = "font-size:0.85em"
+            ),
+            shiny::tags$span(
+              " (may not exist for all elements)",
+              style = "font-size:0.75em; color:#888"
+            )
+          ),
+
         if (nchar(ann) > 0)
           shiny::tags$p(ann, style = "font-size:0.9em; margin-top:4px"),
 
@@ -171,6 +188,17 @@ mod_schema_browser_server <- function(id, schema_data) {
 # Internal helpers
 # ---------------------------------------------------------------------------
 
+#' Convert a PascalCase element name to an NHS Data Dictionary URL
+#' Best-effort: structural container elements may not have a dictionary page.
+#' @noRd
+.dd_url <- function(element_name) {
+  slug <- element_name |>
+    gsub("([A-Z]+)([A-Z][a-z])", "\\1_\\2", x = _) |>
+    gsub("([a-z0-9])([A-Z])",    "\\1_\\2", x = _) |>
+    tolower()
+  paste0("https://www.datadictionary.nhs.uk/data_elements/", slug, ".html")
+}
+
 #' Recursively build jsTreeR node list from flat elements table
 #' @noRd
 .build_schema_tree <- function(elements) {
@@ -195,10 +223,11 @@ mod_schema_browser_server <- function(id, schema_data) {
   node <- list(
     text  = label,
     data  = list(
-      xpath       = xp,
-      type_name   = row$type_name %||% "",
-      is_required = isTRUE(row$is_required),
-      annotation  = row$annotation %||% ""
+      xpath         = xp,
+      element_name  = row$element_name,
+      type_name     = row$type_name %||% "",
+      is_required   = isTRUE(row$is_required),
+      annotation    = row$annotation %||% ""
     ),
     state = list(opened = open)
   )

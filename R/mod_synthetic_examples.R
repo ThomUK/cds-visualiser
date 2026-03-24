@@ -1,8 +1,9 @@
 #' synthetic_examples UI Function
 #' @noRd
-#' @importFrom shiny NS checkboxInput actionButton downloadButton icon hr
+#' @importFrom shiny NS checkboxInput actionButton downloadButton icon hr tagList
 #' @importFrom bslib layout_sidebar sidebar card card_header
 #' @importFrom shinyAce aceEditor
+#' @importFrom reactable reactableOutput
 mod_synthetic_examples_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::layout_sidebar(
@@ -32,17 +33,23 @@ mod_synthetic_examples_ui <- function(id) {
       shiny::hr(),
       shiny::downloadButton(ns("download_xml"), "Download XML", class = "w-100")
     ),
-    bslib::card(
-      full_screen = TRUE,
-      bslib::card_header("Generated XML"),
-      shinyAce::aceEditor(
-        outputId = ns("xml_display"),
-        value    = "# Select a CDS type and click Generate XML",
-        mode     = "xml",
-        theme    = "chrome",
-        readOnly = TRUE,
-        height   = "600px",
-        fontSize = 13
+    shiny::tagList(
+      bslib::card(
+        bslib::card_header("Item Values"),
+        reactable::reactableOutput(ns("items_table"))
+      ),
+      bslib::card(
+        full_screen = TRUE,
+        bslib::card_header("Generated XML"),
+        shinyAce::aceEditor(
+          outputId = ns("xml_display"),
+          value    = "# Select a CDS type and click Generate XML",
+          mode     = "xml",
+          theme    = "chrome",
+          readOnly = TRUE,
+          height   = "500px",
+          fontSize = 13
+        )
       )
     )
   )
@@ -52,6 +59,10 @@ mod_synthetic_examples_ui <- function(id) {
 #' @noRd
 #' @importFrom shiny moduleServer req eventReactive observeEvent downloadHandler
 #' @importFrom shinyAce updateAceEditor
+#' @importFrom reactable renderReactable reactable colDef
+#' @importFrom xml2 read_xml xml_find_all xml_name xml_text
+#' @importFrom dplyr select distinct left_join
+#' @importFrom tibble tibble
 mod_synthetic_examples_server <- function(id, schema_data) {
   shiny::moduleServer(id, function(input, output, session) {
 
@@ -66,6 +77,40 @@ mod_synthetic_examples_server <- function(id, schema_data) {
 
     shiny::observeEvent(xml_result(), {
       shinyAce::updateAceEditor(session, "xml_display", value = xml_result())
+    })
+
+    output$items_table <- reactable::renderReactable({
+      xml <- shiny::req(xml_result())
+      sd  <- schema_data()
+
+      # Parse XML and extract all leaf nodes (elements with text content)
+      doc    <- xml2::read_xml(xml)
+      leaves <- xml2::xml_find_all(doc, "//*[not(*)]")
+
+      items <- tibble::tibble(
+        element_name = xml2::xml_name(leaves),
+        value        = xml2::xml_text(leaves)
+      )
+
+      # Join annotation from schema for context
+      annotations <- dplyr::distinct(
+        dplyr::select(sd$elements, element_name, annotation),
+        element_name, .keep_all = TRUE
+      )
+      items <- dplyr::left_join(items, annotations, by = "element_name")
+
+      reactable::reactable(
+        items,
+        striped         = TRUE,
+        highlight       = TRUE,
+        searchable      = TRUE,
+        defaultPageSize = 20,
+        columns = list(
+          element_name = reactable::colDef(name = "Item",        minWidth = 180),
+          value        = reactable::colDef(name = "Value",       minWidth = 120),
+          annotation   = reactable::colDef(name = "Description", minWidth = 200, na = "")
+        )
+      )
     })
 
     output$download_xml <- shiny::downloadHandler(
