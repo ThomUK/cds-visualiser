@@ -40,12 +40,15 @@ mod_schema_browser_ui <- function(id) {
       bslib::card(
         full_screen = TRUE,
         bslib::card_header(
-          class = "d-flex align-items-center gap-2",
+          class = "d-flex align-items-center",
           "Element Tree",
-          shiny::textInput(
-            ns("search"), NULL,
-            placeholder = "Search\u2026",
-            width = "160px"
+          shiny::div(
+            style = "flex:1; margin-left:0.75rem",
+            shiny::textInput(
+              ns("search"), NULL,
+              placeholder = "Search\u2026",
+              width = "100%"
+            )
           )
         ),
         jsTreeR::jstreeOutput(ns("tree"))
