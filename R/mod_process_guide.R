@@ -119,7 +119,10 @@ mod_process_guide_ui <- function(id) {
         bslib::card(
           bslib::card_header("Monthly CDS submission process"),
           bslib::card_body(
-            DiagrammeR::DiagrammeROutput(ns("flow_diagram"), height = "480px")
+            shiny::tags$div(
+              style = "height:480px; overflow-y:auto",
+              DiagrammeR::DiagrammeROutput(ns("flow_diagram"), height = "900px")
+            )
           )
         ),
         bslib::card(
