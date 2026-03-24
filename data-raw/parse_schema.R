@@ -18,8 +18,8 @@ suppressMessages({
 # Source parser utils
 source(here("R/utils_schema_parser.R"))
 
-xsd_dir  <- here("dd_cds_6.3.1_20220629000001")
-out_path <- here("inst/app/schema_data.rds")
+xsd_dir  <- here("inst/extdata/xsd")
+out_path <- here("inst/extdata/schema_data.rds")
 
 message("Parsing CDS XSD files from: ", xsd_dir)
 t0          <- proc.time()

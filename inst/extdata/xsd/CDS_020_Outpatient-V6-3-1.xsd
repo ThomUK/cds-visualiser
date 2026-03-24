@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns="http://www.nhsia.nhs.uk/DataStandards/XMLschema/CDS/ns" targetNamespace="http://www.nhsia.nhs.uk/DataStandards/XMLschema/CDS/ns" elementFormDefault="qualified" attributeFormDefault="unqualified" version="6-3-1">
+	<xs:include schemaLocation="CDS-XML_Standard_Data_Structures-V6-3-1.xsd"/>
+	<xs:complexType name="Outpatient_Structure">
+		<xs:sequence>
+			<xs:element name="PatientPathway" type="ns:PatientPathway_Structure" minOccurs="0"/>
+			<xs:element name="PersonGroupPatient_Outpatient_Structure" type="ns:PersonGroupPatient_Outpatient_Structure"/>
+			<xs:element name="CareEpisode" type="ns:CareEpisode_Structure" minOccurs="0"/>
+			<xs:element name="CareAttendance" type="ns:CareAttendance_Structure"/>
+			<xs:element name="GPRegistration" type="ns:GPRegistration_Structure" minOccurs="0"/>
+			<xs:element name="OutpatientReferral" type="ns:OutpatientReferral_Structure" minOccurs="0"/>
+			<xs:element name="MissedAppointmentOccurrence" type="ns:MissedAppointmentOccurrence_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

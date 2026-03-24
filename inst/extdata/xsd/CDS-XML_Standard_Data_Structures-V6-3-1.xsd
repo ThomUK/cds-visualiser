@@ -1,0 +1,1524 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns="http://www.nhsia.nhs.uk/DataStandards/XMLschema/CDS/ns" targetNamespace="http://www.nhsia.nhs.uk/DataStandards/XMLschema/CDS/ns" elementFormDefault="qualified" attributeFormDefault="unqualified" version="6-3-1">
+	<xs:include schemaLocation="CDS-XML_Standard_Data_Elements-V6-3-1.xsd"/>
+	<xs:complexType name="Address_Structure">
+		<xs:choice>
+			<xs:element name="UnstructuredAddress" type="ns:UnstructuredAddress_Type"/>
+			<xs:element name="StructuredAddress" type="ns:StructuredAddress_Type" minOccurs="2" maxOccurs="5"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="ClinicalActivity_Structure">
+		<xs:sequence>
+			<xs:element name="ClinicalActivityGroupOPCS" type="ns:ClinicalActivityGroupOPCS_Type" minOccurs="0"/>
+			<xs:element name="ClinicalActivity_Procedure_SNOMED_CT" type="ns:Procedure_SNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="ClinicalActivity_Observation_Group_SNOMED_CT" type="ns:Observation_Group_SNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="ClinicalActivity_Finding_Group_SNOMED_CT" type="ns:Finding_Group_SNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="ClinicalActivity_Assesment_Tool_Group_SNOMED_CT" type="ns:Assesment_Tool_Group_SNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ClinicalActivityGroupOPCS_Type">
+		<xs:sequence>
+			<xs:element name="ProcedureSchemeInUse_CommissioningDataSet" type="ns:ProcedureSchemeInUse_Type"/>
+			<xs:element name="PrimaryProcedureGroupOPCS">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="PrimaryProcedure_OPCS" type="ns:PrimaryProcedure_OPCS_Type"/>
+						<xs:element name="ProcedureDate" type="ns:ProcedureDate_Type" minOccurs="0"/>
+						<xs:element name="MainOperatingHCP" type="ns:ProfessionalsInvolved_Structure" minOccurs="0"/>
+						<xs:element name="ResponsibleAnaesthetist" type="ns:ProfessionalsInvolved_Structure" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="SecondaryProcedureGroupOPCS" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="SecondaryProcedure_OPCS" type="ns:Procedure_OPCS_Type"/>
+						<xs:element name="ProcedureDate" type="ns:ProcedureDate_Type" minOccurs="0"/>
+						<xs:element name="MainOperatingHCP" type="ns:ProfessionalsInvolved_Structure" minOccurs="0"/>
+						<xs:element name="ResponsibleAnaesthetist" type="ns:ProfessionalsInvolved_Structure" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Procedure_SNOMED_CT_Type">
+		<xs:choice>
+			<xs:element name="SNOMED_CT_Procedure" type="ns:SNOMED_CT_Procedure_Type"/>
+			<xs:element name="DataAbsentReason_Structure" type="ns:DataAbsentReason_Structure" minOccurs="0"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="SNOMED_CT_Procedure_Type">
+		<xs:sequence>
+			<xs:element name="Procedure_SnomedCtExpression" type="ns:SocPerSNOMED_Type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="CodedClinicalEntrySequenceNumber" type="ns:CodedClinicalEntrySequenceNumber_Type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="CodedProcedureTimestamp" type="ns:SocPerTimestamp_Type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="MainOperatingHCP" type="ns:ProfessionalsInvolved_Structure" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="ResponsibleAnaesthetist" type="ns:ProfessionalsInvolved_Structure" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Observation_Group_SNOMED_CT_Type">
+		<xs:choice>
+			<xs:element name="Episode_SNOMED_CT_Observation" type="ns:Episode_SNOMED_CT_Observation_Type"/>
+			<xs:element name="DataAbsentReason_Structure" type="ns:DataAbsentReason_Structure" minOccurs="0"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="Finding_Group_SNOMED_CT_Type">
+		<xs:choice>
+			<xs:element name="Episode_SNOMED_CT_Finding" type="ns:Episode_SNOMED_CT_Finding_Type"/>
+			<xs:element name="DataAbsentReason_Structure" type="ns:DataAbsentReason_Structure" minOccurs="0"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="Assesment_Tool_Group_SNOMED_CT_Type">
+		<xs:choice>
+			<xs:element name="SNOMED_CT_Assesment_Tool_Type" type="ns:SNOMED_CT_Assesment_Tool_Type"/>
+			<xs:element name="DataAbsentReason_Structure" type="ns:DataAbsentReason_Structure" minOccurs="0"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="Episode_SNOMED_CT_Observation_Type">
+		<xs:sequence>
+			<xs:element name="Observation_SnomedCtExpression" type="ns:SocPerSNOMED_Type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="ObsValue" type="ns:ObservationValue_Type" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="UCUMUnit" type="ns:UCUM_Unit_Type" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="CodedObservationTimestamp" type="ns:SocPerTimestamp_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Episode_SNOMED_CT_Finding_Type">
+		<xs:sequence>
+			<xs:element name="Finding_SnomedCtExpression" type="ns:SocPerSNOMED_Type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="CodedFindingTimestamp" type="ns:SocPerTimestamp_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SNOMED_CT_Assesment_Tool_Type">
+		<xs:sequence>
+			<xs:element name="AssessmentTool_SnomedCtExpression" type="ns:SocPerSNOMED_Type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="PersonScore" type="ns:PersonScore_Type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="AssessmentToolCompletionTimestamp" type="ns:SocPerTimestamp_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ClinicalDiagnosis_FitNote_Structure">
+		<xs:sequence>
+			<xs:element name="ClinicalDiagnosisGroupICD" type="ns:ClinicalDiagnosisGroupICD_Type" minOccurs="0"/>
+			<xs:element name="ClinicalDiagnosisGroupSNOMED_CT" type="ns:ClinicalDiagnosisGroupSNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="CareEpisode_ComorbiditySNOMED_CT" type="ns:ComorbiditySNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="CareEpisode_EMED3_FitNote" type="ns:EMED3_FitNote_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ClinicalDiagnosis_FitNote_GeneralEpisode_Structure">
+		<xs:sequence>
+			<xs:element name="ClinicalDiagnosisGroupICD" type="ns:ClinicalDiagnosisGroupICD_130_Type" minOccurs="0"/>
+			<xs:element name="ClinicalDiagnosisGroupSNOMED_CT" type="ns:ClinicalDiagnosisGroupSNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="CareEpisode_ComorbiditySNOMED_CT" type="ns:ComorbiditySNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="CareEpisode_EMED3_FitNote" type="ns:EMED3_FitNote_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ClinicalDiagnosis_Structure">
+		<xs:sequence>
+			<xs:element name="ClinicalDiagnosisGroupICD" type="ns:ClinicalDiagnosisGroupICD_Type" minOccurs="0"/>
+			<xs:element name="ClinicalDiagnosisGroupSNOMED_CT" type="ns:ClinicalDiagnosisGroupSNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="ComorbiditySNOMED_CT" type="ns:ComorbiditySNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ClinicalDiagnosisGroupICD_Type">
+		<xs:sequence>
+			<xs:element name="DiagnosisSchemeInUse_CommissioningDataSet" type="ns:DiagnosisSchemeInUse_Type"/>
+			<xs:element name="PrimaryDiagnosisGroupICD">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="PrimaryDiagnosis_ICD" type="ns:PrimaryDiagnosis_ICD_Type"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="SecondaryDiagnosisGroupICD" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="SecondaryDiagnosis_ICD" type="ns:SecondaryDiagnosis_ICD_Type"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ClinicalDiagnosisGroupICD_130_Type">
+		<xs:sequence>
+			<xs:element name="DiagnosisSchemeInUse_CommissioningDataSet" type="ns:DiagnosisSchemeInUse_Type"/>
+			<xs:element name="PrimaryDiagnosisGroupICD">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="PrimaryDiagnosis_ICD" type="ns:PrimaryDiagnosis_ICD_Type"/>
+						<xs:element name="PresentOnAdmissionIndicator" type="ns:PresentOnAdmissionIndicator_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="SecondaryDiagnosisGroupICD" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="SecondaryDiagnosis_ICD" type="ns:SecondaryDiagnosis_ICD_Type"/>
+						<xs:element name="PresentOnAdmissionIndicator" type="ns:PresentOnAdmissionIndicator_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ClinicalDiagnosisGroupSNOMED_CT_Type">
+		<xs:choice>
+			<xs:element name="SNOMED_CT_Diagnosis" type="ns:SNOMED_CT_Diagnosis_Structure"/>
+			<xs:element name="DataAbsentReason_Structure" type="ns:DataAbsentReason_Structure" minOccurs="0"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="SNOMED_CT_Diagnosis_Structure">
+		<xs:sequence>
+			<xs:element name="Diagnosis_SnomedCtExpression" type="ns:SocPerSNOMED_Type" minOccurs="1"/>
+			<xs:element name="CodedClinicalEntrySequenceNumber" type="ns:CodedClinicalEntrySequenceNumber_Type" minOccurs="1"/>
+			<xs:element name="CodedDiagnosisTimestamp" type="ns:SocPerTimestamp_Type" minOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ComorbiditySNOMED_CT_Type">
+		<xs:choice>
+			<xs:element name="Comorbidity_Structure" type="ns:Comorbidity_Structure" minOccurs="1"/>
+			<xs:element name="DataAbsentReason_Structure" type="ns:DataAbsentReason_Structure" minOccurs="0"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="Comorbidity_Structure">
+		<xs:sequence>
+			<xs:element name="Comorbidity_SnomedCtExpression" type="ns:SocPerSNOMED_Type" minOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="EMED3_FitNote_Structure">
+		<xs:sequence>
+			<xs:element name="FitNoteAssessmentDate" type="ns:FitNoteAssessmentDate_Type" minOccurs="0"/>
+			<xs:element name="FitNoteCondition_SnomedCtExpression" type="ns:FitNoteCondition_SnomedCtExpression_Type" minOccurs="0"/>
+			<xs:element name="FitNoteDiagnosis_ICD" type="ns:FitNoteDiagnosis_ICD_Type" minOccurs="0"/>
+			<xs:element name="FitNoteStartDate" type="ns:FitNoteStartDate_Type" minOccurs="0"/>
+			<xs:element name="FitNoteEndDate" type="ns:FitNoteEndDate_Type" minOccurs="0"/>
+			<xs:element name="FitNoteDuration" type="ns:FitNoteDuration_Type" minOccurs="0"/>
+			<xs:element name="FitNoteRecordedDate" type="ns:FitNoteRecordedDate_Type" minOccurs="0"/>
+			<xs:element name="FitNoteFollowUpIndicator" type="ns:FitNoteFollowUpIndicator_Type" minOccurs="0"/>
+			<xs:element name="FitNoteIssuer" type="ns:FitNoteIssuer_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ClinicalInvestigationGroupICD_Type">
+		<xs:sequence>
+			<xs:element name="InvestigationSchemeInUse" type="ns:InvestigationSchemeInUse_Type"/>
+			<xs:element name="PrimaryInvestigationGroupICD">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="PrimaryInvestigation_ICD" type="ns:PrimaryDiagnosis_ICD_Type"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="SecondaryInvestigationGroupICD" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="SecondaryInvestigation_ICD" type="ns:PrimaryDiagnosis_ICD_Type"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GPRegistration_Structure">
+		<xs:sequence>
+			<xs:element name="GeneralMedicalPractitioner_Specified" type="ns:GeneralMedicalPractitioner_Specified_Type" minOccurs="0"/>
+			<xs:element name="GeneralMedicalPractice_PatientRegistration" type="ns:GeneralPractice_PatientRegistration_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="LengthOfStayAdjustment_Structure">
+		<xs:sequence>
+			<xs:element name="LengthOfStayAdjustmentRehab" type="ns:LengthOfStayAdjustment_Type" minOccurs="0"/>
+			<xs:element name="LengthOfStayAdjustmentSpecialistPalliativeCare" type="ns:LengthOfStayAdjustment_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PatientPathway_Structure">
+		<xs:sequence>
+			<xs:element name="PatientPathwayIdentity">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:choice>
+							<xs:element name="UniqueBookingReferenceNumber_Converted" type="ns:UBRN_Converted_Type"/>
+							<xs:element name="PatientPathwayIdentifier" type="ns:PatientPathwayIdentifier_Type"/>
+						</xs:choice>
+						<xs:element name="OrganisationIdentifier_PatientPathwayIdentifierIssuer" type="ns:OrganisationIdentifier_PatientPathwayIdentifierIssuer_Type"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="RTTPeriodCharacteristics">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="ReferralToTreatmentPeriod_Status" type="ns:ReferralToTreatmentPeriod_Status_Type"/>
+						<xs:element name="WaitingTimeMeasurementType_CommissioningDataSet" type="ns:WaitingTimeMeasurementType_Type"/>
+						<xs:element name="ReferralToTreatmentPeriod_StartDate" type="ns:ReferralToTreatmentPeriod_StartDate_Type" minOccurs="0"/>
+						<xs:element name="ReferralToTreatmentPeriod_EndDate" type="ns:ReferralToTreatmentPeriod_EndDate_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PersonName_Structure">
+		<xs:sequence>
+			<xs:choice minOccurs="0">
+				<xs:element name="PatientFullName" type="ns:PersonName_UnstructuredText_Type"/>
+				<xs:element name="PatientName_Structured">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="PatientTitle" type="ns:PersonName_StructuredWord_Type" minOccurs="0"/>
+							<xs:element name="PatientGivenName" type="ns:PersonName_StructuredWord_Type"/>
+							<xs:element name="PatientFamilyName" type="ns:PersonName_StructuredWord_Type"/>
+							<xs:element name="PatientNameSuffix" type="ns:PersonName_StructuredWord_Type" minOccurs="0"/>
+							<xs:element name="PatientInitials" type="ns:PersonName_StructuredWord_Type" minOccurs="0"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Referrer_Structure">
+		<xs:sequence>
+			<xs:element name="ReferrerCode" type="ns:ReferrerCode_Type" minOccurs="0"/>
+			<xs:element name="OrganisationIdentifier_ReferringOrganisation" type="ns:ReferringOrganisationCode_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ServiceAgreementDetails_Structure">
+		<xs:sequence>
+			<xs:element name="OrganisationIdentifier_CodeOfProvider" type="ns:OrganisationCode_Type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Commissioners" type="ns:Commissioners_Structure" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Commissioners_Structure">
+		<xs:sequence>
+			<xs:element name="OrganisationIdentifier_CodeOfCommissioner" type="ns:OrganisationCode_Type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="StartDate_CommissionerAssignmentPeriod" type="ns:StartDate_CommissionerAssignmentPeriod_Type" minOccurs="0"/>
+			<xs:element name="EndDate_CommissionerAssignmentPeriod" type="ns:EndDate_CommissionerAssignmentPeriod_Type" minOccurs="0"/>
+			<xs:element name="NHSServiceAgreementIdentifier" type="ns:CommissioningSerialNumber_Type" minOccurs="0"/>
+			<xs:element name="NHSServiceAgreementLineIdentifier" type="ns:NHSServiceAgreementLineNumber_Type" minOccurs="0"/>
+			<xs:element name="ProviderReferenceIdentifier" type="ns:ProviderReferenceNumber_Type" minOccurs="0"/>
+			<xs:element name="CommissionerReferenceIdentifier" type="ns:CommissionerReferenceNumber_Type" minOccurs="0"/>
+			<xs:element name="ServiceCode" type="ns:ServiceCode_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ServiceAgreementDetails_EAL_Structure">
+		<xs:sequence>
+			<xs:element name="CommissioningSerialNumber" type="ns:CommissioningSerialNumber_Type" minOccurs="0"/>
+			<xs:element name="NHSServiceAgreementLineNumber" type="ns:NHSServiceAgreementLineNumber_Type" minOccurs="0"/>
+			<xs:element name="ProviderReferenceNumber" type="ns:ProviderReferenceNumber_Type" minOccurs="0"/>
+			<xs:element name="CommissionerReferenceNumber" type="ns:CommissionerReferenceNumber_Type" minOccurs="0"/>
+			<xs:element name="OrganisationIdentifier_CodeOfProvider" type="ns:OrganisationCode_Type"/>
+			<xs:element name="OrganisationCode_CodeOfCommissioner" type="ns:OrganisationCode_Type"/>
+			<xs:element name="NHSServiceAgreementChangeDate" type="ns:NHSServiceAgreementChangeDate_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ServiceAgreementChange_Structure">
+		<xs:sequence>
+			<xs:element name="CommissioningSerialNumber" type="ns:CommissioningSerialNumber_Type" minOccurs="0"/>
+			<xs:element name="NHSServiceAgreementLineNumber" type="ns:NHSServiceAgreementLineNumber_Type" minOccurs="0"/>
+			<xs:element name="ProviderReferenceNumber" type="ns:ProviderReferenceNumber_Type" minOccurs="0"/>
+			<xs:element name="CommissionerReferenceNumber" type="ns:CommissionerReferenceNumber_Type" minOccurs="0"/>
+			<xs:element name="OrganisationIdentifier_CodeOfProvider" type="ns:OrganisationCode_Type"/>
+			<xs:element name="OrganisationCode_CodeOfCommissioner" type="ns:OrganisationCode_Type"/>
+			<xs:element name="NHSServiceAgreementChangeDate" type="ns:NHSServiceAgreementChangeDate_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PersonGroupPatient_General_Structure">
+		<xs:sequence>
+			<xs:element name="PatientIdentity_General_Structure" type="ns:PatientIdentity_General_Structure"/>
+			<xs:element name="PatientCharacteristics_General_Structure" type="ns:PatientCharacteristics_General_Structure" minOccurs="0"/>
+			<xs:element name="PatientCharacteristics_Social_and_PersonalCircumstances_Structure" type="ns:PatientCharacteristics_Social_and_PersonalCircumstances_Structure" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PatientIdentity_General_Structure">
+		<xs:sequence>
+			<xs:choice>
+				<xs:element name="WithheldIdentity_Structure">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Withheld_Type"/>
+							<xs:element name="OrganisationIdentifier_ResidenceResponsibility" type="ns:OrgCode_Type" minOccurs="0"/>
+							<xs:element name="WithheldIdentityReason" type="ns:WithheldIdentityReason_Type" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Withheld_Type" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="VerifiedIdentity_Structure">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:sequence minOccurs="0">
+								<xs:element name="LocalPatientIdentifier_Extended" type="ns:LocalPatientIdentifier_Type"/>
+								<xs:element name="OrganisationIdentifier_LocalPatientIdentifier" type="ns:OrganisationCode_Type"/>
+							</xs:sequence>
+							<xs:element name="NHSNumber" type="ns:NHSNumber_Type"/>
+							<xs:element name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Verified_Type"/>
+							<xs:element name="PostcodeOfUsualAddress" type="ns:PostcodeOfUsualAddress_Type"/>
+							<xs:element name="OrganisationIdentifier_ResidenceResponsibility" type="ns:OrgCode_Type" minOccurs="0"/>
+							<xs:element name="PersonBirthDate" type="ns:PersonBirthDate_Type" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Verified_Type" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="UnverifiedIdentity_Structure">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:sequence minOccurs="0">
+								<xs:element name="LocalPatientIdentifier_Extended" type="ns:LocalPatientIdentifier_Type"/>
+								<xs:element name="OrganisationIdentifier_LocalPatientIdentifier" type="ns:OrganisationCode_Type"/>
+							</xs:sequence>
+							<xs:element name="NHSNumber" type="ns:NHSNumber_Type" minOccurs="0"/>
+							<xs:element name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Unverified_Type"/>
+							<xs:element name="PatientName" type="ns:PersonName_Structure" minOccurs="0"/>
+							<xs:element name="PatientUsualAddress" type="ns:Address_Structure" minOccurs="0"/>
+							<xs:element name="PostcodeOfUsualAddress" type="ns:PostcodeOfUsualAddress_Type" minOccurs="0"/>
+							<xs:element name="OrganisationIdentifier_ResidenceResponsibility" type="ns:OrgCode_Type" minOccurs="0"/>
+							<xs:element name="PersonBirthDate" type="ns:PersonBirthDate_Type" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Unverified_Type" use="required"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PatientCharacteristics_General_Structure">
+		<xs:sequence>
+			<xs:element name="PersonStatedGenderCode" type="ns:PersonGenderCodeCurrent_Type" minOccurs="0"/>
+			<xs:element name="CarerSupportIndicator" type="ns:CarerSupportIndicator_Type" minOccurs="0"/>
+			<xs:element name="EthnicCategory" type="ns:EthnicCategory_Type" minOccurs="0"/>
+			<xs:element name="EthnicCategory2021" type="ns:EthnicCategory2021_Type" minOccurs="0"/>
+			<xs:element name="PersonMaritalStatus" type="ns:PersonMaritalStatus_Type" minOccurs="0"/>
+			<xs:element name="MentalHealthActLegalStatusClassificationCode_OnAdmission" type="ns:MentalHealthActLegalStatusClassificationCode_OnAdmission_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PatientCharacteristics_OtherDelivery_General_Structure">
+		<xs:sequence>
+			<xs:element name="PersonStatedGenderCode" type="ns:PersonGenderCodeCurrent_Type" minOccurs="0"/>
+			<xs:element name="CarerSupportIndicator" type="ns:CarerSupportIndicator_Type" minOccurs="0"/>
+			<xs:element name="EthnicCategory" type="ns:EthnicCategory_Type" minOccurs="0"/>
+			<xs:element name="EthnicCategory2021" type="ns:EthnicCategory2021_Type" minOccurs="0"/>
+			<xs:element name="PersonMaritalStatus" type="ns:PersonMaritalStatus_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PersonGroupPatient_Birth_Structure">
+		<xs:sequence>
+			<xs:element name="PatientIdentity_Birth_Structure" type="ns:PatientIdentity_Birth_Structure"/>
+			<xs:element name="PatientCharacteristics_Birth_Structure" type="ns:PatientCharacteristics_Birth_Structure" minOccurs="0"/>
+			<xs:element name="PatientCharacteristics_Social_and_PersonalCircumstances_Structure" type="ns:PatientCharacteristics_Social_and_PersonalCircumstances_Structure" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BirthEpisode_Structure">
+		<xs:sequence>
+			<xs:element name="BirthEpisode_ClinicalDiagnosis" type="ns:ClinicalDiagnosisGroupSNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="BirthEpisode_Comorbidity" type="ns:ComorbiditySNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="BirthEpisode_ProcedureGroup" type="ns:Procedure_SNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="BirthEpisode_CodedObservationGroup" type="ns:Observation_Group_SNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="BirthEpisode_CodedFindingGroup" type="ns:Finding_Group_SNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="BirthEpisode_AssesmentTool" type="ns:Assesment_Tool_Group_SNOMED_CT_Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PatientIdentity_Birth_Structure">
+		<xs:sequence>
+			<xs:choice>
+				<xs:element name="WithheldIdentity_Structure">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Withheld_Type"/>
+							<xs:element name="PersonBirthDate" type="ns:PersonBirthDate_Type" minOccurs="0"/>
+							<xs:element name="WithheldIdentityReason" type="ns:WithheldIdentityReason_Type" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Withheld_Type" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="VerifiedIdentity_Structure">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:sequence minOccurs="0">
+								<xs:element name="LocalPatientIdentifier_Extended" type="ns:LocalPatientIdentifier_Type"/>
+								<xs:element name="OrganisationIdentifier_LocalPatientIdentifier" type="ns:OrganisationCode_Type"/>
+							</xs:sequence>
+							<xs:element name="NHSNumber" type="ns:NHSNumber_Type"/>
+							<xs:element name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Verified_Type"/>
+							<xs:element name="PersonBirthDate" type="ns:PersonBirthDate_Type" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Verified_Type" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="UnverifiedIdentity_Structure">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:sequence minOccurs="0">
+								<xs:element name="LocalPatientIdentifier_Extended" type="ns:LocalPatientIdentifier_Type"/>
+								<xs:element name="OrganisationIdentifier_LocalPatientIdentifier" type="ns:OrganisationCode_Type"/>
+							</xs:sequence>
+							<xs:element name="NHSNumber" type="ns:NHSNumber_Type" minOccurs="0"/>
+							<xs:element name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Unverified_Type"/>
+							<xs:element name="PatientName" type="ns:PersonName_Structure" minOccurs="0"/>
+							<xs:element name="PersonBirthDate" type="ns:PersonBirthDate_Type" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Unverified_Type" use="required"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PatientCharacteristics_Birth_Structure">
+		<xs:sequence>
+			<xs:element name="PersonPhenotypicSex" type="ns:PersonGenderCodeCurrent_Type" minOccurs="0"/>
+			<xs:element name="EthnicCategory" type="ns:EthnicCategory_Type" minOccurs="0"/>
+			<xs:element name="EthnicCategory2021" type="ns:EthnicCategory2021_Type" minOccurs="0"/>
+			<xs:element name="LiveOrStillBirthCode" type="ns:LiveOrStillBirthCode_Type" minOccurs="0"/>
+			<xs:element name="BirthWeight" type="ns:BirthWeight_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PersonGroupPatient_Delivery_Structure">
+		<xs:sequence>
+			<xs:element name="PatientIdentity_Delivery_Structure" type="ns:PatientIdentity_Delivery_Structure"/>
+			<xs:element name="PatientCharacteristics_General_Structure" type="ns:PatientCharacteristics_General_Structure" minOccurs="0"/>
+			<xs:element name="PatientCharacteristics_Delivery_Structure" type="ns:PatientCharacteristics_Delivery_Structure" minOccurs="0"/>
+			<xs:element name="PatientCharacteristics_Social_and_PersonalCircumstances_Structure" type="ns:PatientCharacteristics_Social_and_PersonalCircumstances_Structure" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PersonGroupPatient_OtherDelivery_Structure">
+		<xs:sequence>
+			<xs:element name="PatientIdentity_Delivery_Structure" type="ns:PatientIdentity_Delivery_Structure"/>
+			<xs:element name="PatientCharacteristics_General_Structure" type="ns:PatientCharacteristics_OtherDelivery_General_Structure" minOccurs="0"/>
+			<xs:element name="PatientCharacteristics_Delivery_Structure" type="ns:PatientCharacteristics_Delivery_Structure" minOccurs="0"/>
+			<xs:element name="PatientCharacteristics_Social_and_PersonalCircumstances_Structure" type="ns:PatientCharacteristics_Social_and_PersonalCircumstances_Structure" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PatientIdentity_Delivery_Structure">
+		<xs:sequence>
+			<xs:choice>
+				<xs:element name="WithheldIdentity_Structure">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Withheld_Type"/>
+							<xs:element name="OrganisationIdentifier_ResidenceResponsibility" type="ns:OrgCode_Type" minOccurs="0"/>
+							<xs:element name="WithheldIdentityReason" type="ns:WithheldIdentityReason_Type" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Withheld_Type" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="VerifiedIdentity_Structure">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:sequence minOccurs="0">
+								<xs:element name="LocalPatientIdentifier_Extended" type="ns:LocalPatientIdentifier_Type"/>
+								<xs:element name="OrganisationIdentifier_LocalPatientIdentifier" type="ns:OrganisationCode_Type"/>
+							</xs:sequence>
+							<xs:element name="NHSNumber" type="ns:NHSNumber_Type"/>
+							<xs:element name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Verified_Type"/>
+							<xs:element name="PostcodeOfUsualAddress" type="ns:PostcodeOfUsualAddress_Type"/>
+							<xs:element name="OrganisationIdentifier_ResidenceResponsibility" type="ns:OrgCode_Type" minOccurs="0"/>
+							<xs:element name="PersonBirthDate" type="ns:PersonBirthDate_Type" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Verified_Type" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="UnverifiedIdentity_Structure">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:sequence minOccurs="0">
+								<xs:element name="LocalPatientIdentifier_Extended" type="ns:LocalPatientIdentifier_Type"/>
+								<xs:element name="OrganisationIdentifier_LocalPatientIdentifier" type="ns:OrganisationCode_Type"/>
+							</xs:sequence>
+							<xs:element name="NHSNumber" type="ns:NHSNumber_Type" minOccurs="0"/>
+							<xs:element name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Unverified_Type"/>
+							<xs:element name="PatientName" type="ns:PersonName_Structure" minOccurs="0"/>
+							<xs:element name="PatientUsualAddress" type="ns:Address_Structure" minOccurs="0"/>
+							<xs:element name="PostcodeOfUsualAddress" type="ns:PostcodeOfUsualAddress_Type" minOccurs="0"/>
+							<xs:element name="OrganisationIdentifier_ResidenceResponsibility" type="ns:OrgCode_Type" minOccurs="0"/>
+							<xs:element name="PersonBirthDate" type="ns:PersonBirthDate_Type" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="NHSNumberStatusIndicatorCode" type="ns:NHSNumberStatusIndicatorCode_Unverified_Type" use="required"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PatientCharacteristics_Delivery_Structure">
+		<xs:sequence>
+			<xs:element name="NumberOfPreviousPregnanciesResultingInRegistrableBirth" type="ns:PregnancyTotalPreviousPregnancies_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PersonGroupPatient_Psychiatric_Structure">
+		<xs:sequence>
+			<xs:element name="PatientIdentity_General_Structure" type="ns:PatientIdentity_General_Structure"/>
+			<xs:element name="PatientCharacteristics_General_Structure" type="ns:PatientCharacteristics_General_Structure" minOccurs="0"/>
+			<xs:element name="PatientCharacteristics_Psychiatric_Structure" type="ns:PatientCharacteristics_Psychiatric_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PatientCharacteristics_Psychiatric_Structure">
+		<xs:sequence>
+			<xs:element name="MentalHealthActLegalStatusClassificationCode_AtCensusDate" type="ns:MentalHealthActLegalStatusClassificationCode_AtCensusDate_Type" minOccurs="0"/>
+			<xs:element name="DateDetentionCommenced" type="ns:DateDetentionCommenced_Type" minOccurs="0"/>
+			<xs:element name="AgeAtCensus" type="ns:AgeAtCensus_Type"/>
+			<xs:element name="DurationOfCareToPsychiatricCensusDate" type="ns:DurationOfCareToPsychiatricCensusDate_Type" minOccurs="0"/>
+			<xs:element name="DurationOfDetention" type="ns:DurationOfDetention_Type" minOccurs="0"/>
+			<xs:element name="MentalHealthAct2007_MentalCategory" type="ns:MentalHealthAct2007_MentalCategory_Type" minOccurs="0"/>
+			<xs:element name="StatusOfPatientIncludedInThePsychiatricCensusCode" type="ns:StatusOfPatientIncludedInThePsychiatricCensusCode_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PersonGroupPatient_AAndE_Structure">
+		<xs:sequence>
+			<xs:element name="PatientIdentity_General_Structure" type="ns:PatientIdentity_General_Structure"/>
+			<xs:element name="PatientCharacteristics_AAndE_Structure" type="ns:PatientCharacteristics_AAndE_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PatientCharacteristics_AAndE_Structure">
+		<xs:sequence>
+			<xs:element name="PersonStatedGenderCode" type="ns:PersonGenderCodeCurrent_Type" minOccurs="0"/>
+			<xs:element name="CarerSupportIndicator" type="ns:CarerSupportIndicator_Type" minOccurs="0"/>
+			<xs:element name="EthnicCategory" type="ns:EthnicCategory_Type" minOccurs="0"/>
+			<xs:element name="EthnicCategory2021" type="ns:EthnicCategory2021_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PersonGroupPatient_Outpatient_Structure">
+		<xs:sequence>
+			<xs:element name="PatientIdentity_General_Structure" type="ns:PatientIdentity_General_Structure"/>
+			<xs:element name="PatientCharacteristics_CareActivity_Structure" type="ns:PatientCharacteristics_CareActivity_Structure" minOccurs="0"/>
+			<xs:element name="PatientCharacteristics_Social_and_PersonalCircumstances_Structure" type="ns:PatientCharacteristics_Social_and_PersonalCircumstances_Structure" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PatientCharacteristics_Social_and_PersonalCircumstances_Structure">
+		<xs:sequence>
+			<xs:choice>
+				<xs:element name="SNOMED_CT_Social_And_PersonalCircumstances_Structure" type="ns:SNOMED_CT_Social_And_PersonalCircumstances_Structure"/>
+				<xs:element name="DataAbsentReason_Structure" type="ns:DataAbsentReason_Structure" minOccurs="0"/>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SNOMED_CT_Social_And_PersonalCircumstances_Structure">
+		<xs:sequence>
+			<xs:element name="SocPer_SnomedCtExpression" type="ns:SocPerSNOMED_Type"/>
+			<xs:element name="SocPerRecordedTimestamp" type="ns:SocPerTimestamp_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DataAbsentReason_Structure">
+		<xs:sequence>
+			<xs:element name="DataAbsentReason_FHIRR4" type="ns:DataAbsentReason_FHIRR4_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PatientCharacteristics_CareActivity_Structure">
+		<xs:sequence>
+			<xs:element name="PersonStatedGenderCode" type="ns:PersonGenderCodeCurrent_Type" minOccurs="0"/>
+			<xs:element name="CarerSupportIndicator" type="ns:CarerSupportIndicator_Type" minOccurs="0"/>
+			<xs:element name="EthnicCategory" type="ns:EthnicCategory_Type" minOccurs="0"/>
+			<xs:element name="EthnicCategory2021" type="ns:EthnicCategory2021_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PatientCharacteristics_EAL_Structure">
+		<xs:sequence>
+			<xs:element name="PersonStatedGenderCode" type="ns:PersonGenderCodeCurrent_Type" minOccurs="0"/>
+			<xs:element name="CarerSupportIndicator" type="ns:CarerSupportIndicator_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PersonGroup_Baby_Structure">
+		<xs:sequence>
+			<xs:element name="PersonIdentity_Baby_Structure" type="ns:PersonIdentity_Baby_Structure"/>
+			<xs:element name="PersonCharacteristics_Baby_Structure" type="ns:PersonCharacteristics_Baby_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PersonIdentity_Baby_Structure">
+		<xs:sequence>
+			<xs:choice>
+				<xs:element name="WithheldIdentity_Structure_Baby">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="NHSNumberStatusIndicatorCode_Baby" type="ns:NHSNumberStatusIndicatorCode_Withheld_Type"/>
+							<xs:element name="PersonBirthDate_Baby" type="ns:PersonBirthDate_Type" minOccurs="0"/>
+							<xs:element name="WithheldIdentityReason" type="ns:WithheldIdentityReason_Type" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="NHSNumberStatusIndicatorCode_Baby" type="ns:NHSNumberStatusIndicatorCode_Withheld_Type" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="VerifiedIdentity_Structure_Baby">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:sequence minOccurs="0">
+								<xs:element name="LocalPatientIdentifier_Extended_Baby" type="ns:LocalPatientIdentifier_Type"/>
+								<xs:element name="OrganisationIdentifier_LocalPatientIdentifier_Baby" type="ns:OrganisationCode_Type"/>
+							</xs:sequence>
+							<xs:element name="NHSNumber_Baby" type="ns:NHSNumber_Type"/>
+							<xs:element name="NHSNumberStatusIndicatorCode_Baby" type="ns:NHSNumberStatusIndicatorCode_Verified_Type"/>
+							<xs:element name="PersonBirthDate_Baby" type="ns:PersonBirthDate_Type" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="NHSNumberStatusIndicatorCode_Baby" type="ns:NHSNumberStatusIndicatorCode_Verified_Type" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="UnverifiedIdentity_Structure_Baby">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:sequence minOccurs="0">
+								<xs:element name="LocalPatientIdentifier_Extended_Baby" type="ns:LocalPatientIdentifier_Type"/>
+								<xs:element name="OrganisationIdentifier_LocalPatientIdentifier_Baby" type="ns:OrganisationCode_Type"/>
+							</xs:sequence>
+							<xs:element name="NHSNumber_Baby" type="ns:NHSNumber_Type" minOccurs="0"/>
+							<xs:element name="NHSNumberStatusIndicatorCode_Baby" type="ns:NHSNumberStatusIndicatorCode_Unverified_Type"/>
+							<xs:element name="PersonBirthDate_Baby" type="ns:PersonBirthDate_Type" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="NHSNumberStatusIndicatorCode_Baby" type="ns:NHSNumberStatusIndicatorCode_Unverified_Type" use="required"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PersonCharacteristics_Baby_Structure">
+		<xs:sequence>
+			<xs:element name="PersonPhenotypicSex" type="ns:PersonGenderCodeCurrent_Baby_Type" minOccurs="0"/>
+			<xs:element name="LiveOrStillBirthCode" type="ns:LiveOrStillBirthCode_Type" minOccurs="0"/>
+			<xs:element name="BirthWeight" type="ns:BirthWeight_Type" minOccurs="0"/>
+			<xs:element name="OverseasVisitorChargingCategoryAtCDSActivityDate" type="ns:OverseasVisitorStatusClassificationAtCDSActivityDate_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PersonGroup_Mother_Structure">
+		<xs:sequence>
+			<xs:element name="PersonIdentity_Mother_Structure" type="ns:PersonIdentity_Mother_Structure"/>
+			<xs:element name="OverseasVisitorStatusClassificationAtCDSActivityDate_Group" type="ns:OverseasVisitorStatusClassificationAtCDSActivityDate_Group_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OverseasVisitorStatusClassificationAtCDSActivityDate_Group_Structure">
+		<xs:sequence>
+			<xs:element name="OverseasVisitorChargingCategoryAtCDSActivityDate" type="ns:OverseasVisitorStatusClassificationAtCDSActivityDate_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PersonIdentity_Mother_Structure">
+		<xs:sequence>
+			<xs:choice>
+				<xs:element name="WithheldIdentity_Structure_Mother">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="NHSNumberStatusIndicatorCode_Mother" type="ns:NHSNumberStatusIndicatorCode_Withheld_Type"/>
+							<xs:element name="OrganisationIdentifier_ResidenceResponsibility" type="ns:OrgCode_Type" minOccurs="0"/>
+							<xs:element name="WithheldIdentityReason" type="ns:WithheldIdentityReason_Type" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="NHSNumberStatusIndicatorCode_Mother" type="ns:NHSNumberStatusIndicatorCode_Withheld_Type" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="VerifiedIdentity_Structure_Mother">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:sequence minOccurs="0">
+								<xs:element name="LocalPatientIdentifier_Extended_Mother" type="ns:LocalPatientIdentifier_Type"/>
+								<xs:element name="OrganisationIdentifier_LocalPatientIdentifier_Mother" type="ns:OrganisationCode_Type"/>
+							</xs:sequence>
+							<xs:element name="NHSNumber_Mother" type="ns:NHSNumber_Type"/>
+							<xs:element name="NHSNumberStatusIndicatorCode_Mother" type="ns:NHSNumberStatusIndicatorCode_Verified_Type"/>
+							<xs:element name="PostcodeOfUsualAddress_Mother" type="ns:PostcodeOfUsualAddress_Type"/>
+							<xs:element name="OrganisationIdentifier_ResidenceResponsibility" type="ns:OrgCode_Type" minOccurs="0"/>
+							<xs:element name="PersonBirthDate_Mother" type="ns:PersonBirthDate_Type" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="NHSNumberStatusIndicatorCode_Mother" type="ns:NHSNumberStatusIndicatorCode_Verified_Type" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="UnverifiedIdentity_Structure_Mother">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:sequence minOccurs="0">
+								<xs:element name="LocalPatientIdentifier_Extended_Mother" type="ns:LocalPatientIdentifier_Type"/>
+								<xs:element name="OrganisationIdentifier_LocalPatientIdentifier_Mother" type="ns:OrganisationCode_Type"/>
+							</xs:sequence>
+							<xs:element name="NHSNumber_Mother" type="ns:NHSNumber_Type" minOccurs="0"/>
+							<xs:element name="NHSNumberStatusIndicatorCode_Mother" type="ns:NHSNumberStatusIndicatorCode_Unverified_Type"/>
+							<xs:element name="PatientUsualAddress_Mother" type="ns:Address_Structure" minOccurs="0"/>
+							<xs:element name="PostcodeOfUsualAddress_Mother" type="ns:PostcodeOfUsualAddress_Type" minOccurs="0"/>
+							<xs:element name="OrganisationIdentifier_ResidenceResponsibility" type="ns:OrgCode_Type" minOccurs="0"/>
+							<xs:element name="PersonBirthDate_Mother" type="ns:PersonBirthDate_Type" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="NHSNumberStatusIndicatorCode_Mother" type="ns:NHSNumberStatusIndicatorCode_Unverified_Type" use="required"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PersonGroupCareProfessional_Structure">
+		<xs:sequence>
+			<xs:element name="ProfessionalRegistrationIssuerCode" type="ns:ProfessionalRegistrationIssuerCode_Type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="ProfessionalRegistrationEntryIdentifier" type="ns:ProfessionalRegistrationEntryIdentifier_Type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="CareProfessionalMainSpecialtyCode" type="ns:CareProfessionalMainSpecialtyCode_Type" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="ActivityTreatmentFunctionCode" type="ns:ActivityTreatmentFunctionCode_Type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="LocalSubSpecialtyCode" type="ns:LocalSubSpecialtyCode_Type" minOccurs="0"/>
+			<xs:element name="ResponsibleCareProfessionalIndicator" type="ns:ResponsibleCareProfessionalIndicator_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="HospitalProviderSpell_Structure">
+		<xs:sequence>
+			<xs:element name="AdmissionCharacteristics">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="HospitalProviderSpellIdentifier" type="ns:HospitalProviderSpellNumber_Type" minOccurs="0"/>
+						<xs:element name="AdministrativeCategoryCodeOnAdmission" type="ns:AdministrativeCategoryCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="PatientClassificationCode" type="ns:PatientClassificationCode_Type" minOccurs="0"/>
+						<xs:element name="MethodOfAdmission_HospitalProviderSpell" type="ns:AdmissionMethodCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="AdmissionSource_HospitalProviderSpell" type="ns:SourceOfAdmissionCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="StartDate_HospitalProviderSpell" type="ns:StartDate_HospitalProviderSpell_Type"/>
+						<xs:element name="StartTime_HospitalProviderSpell" type="ns:StartTime_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="AgeOnAdmission" type="ns:AgeOnAdmission_Type"/>
+						<xs:element name="AmbulanceCallIdentifier" type="ns:AmbulanceIncidentNumber_Type" minOccurs="0"/>
+						<xs:element name="OrganisationIdentifier_ConveyingAmbulanceTrust" type="ns:OrganisationCodeConveyingAmbulanceTrust_Type" minOccurs="0"/>
+						<xs:element name="CareContactIdentifier_AmbulanceService" type="ns:CareContactIdentifierAmbulanceService_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="DischargeCharacteristics" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="DestinationOfDischarge_HospitalProviderSpell" type="ns:DischargeDestinationCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="MethodOfDischarge_HospitalProviderSpell" type="ns:DischargeMethodCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="DischargeReadyDate_HospitalProviderSpell" type="ns:DischargeReadyDate_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="DischargeDate_HospitalProviderSpell" type="ns:DischargeDate_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="DischargeTime_HospitalProviderSpell" type="ns:DischargeTime_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="DischargedToNHSAtHomeServiceIndicator" type="ns:DischargedToHospitalAtHomeServiceIndicator_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="HospitalProviderSpell_Birth_Structure">
+		<xs:sequence>
+			<xs:element name="AdmissionCharacteristics">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="HospitalProviderSpellIdentifier" type="ns:HospitalProviderSpellNumber_Type" minOccurs="0"/>
+						<xs:element name="AdministrativeCategoryCodeOnAdmission" type="ns:AdministrativeCategoryCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="PatientClassificationCode" type="ns:PatientClassificationCode_Type" minOccurs="0"/>
+						<xs:element name="MethodOfAdmission_HospitalProviderSpell" type="ns:AdmissionMethodCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="AdmissionSource_HospitalProviderSpell" type="ns:SourceOfAdmissionCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="StartDate_HospitalProviderSpell" type="ns:StartDate_HospitalProviderSpell_Type"/>
+						<xs:element name="StartTime_HospitalProviderSpell" type="ns:StartTime_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="AgeOnAdmission" type="ns:AgeOnAdmission_Type"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="DischargeCharacteristics" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="DestinationOfDischarge_HospitalProviderSpell" type="ns:DischargeDestinationCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="MethodOfDischarge_HospitalProviderSpell" type="ns:DischargeMethodCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="DischargeReadyDate_HospitalProviderSpell" type="ns:DischargeReadyDate_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="DischargeDate_HospitalProviderSpell" type="ns:DischargeDate_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="DischargeTime_HospitalProviderSpell" type="ns:DischargeTime_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="DischargedToNHSAtHomeServiceIndicator" type="ns:DischargedToHospitalAtHomeServiceIndicator_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="HospitalProviderSpell_GeneralEpisode_Structure">
+		<xs:sequence>
+			<xs:element name="AdmissionCharacteristics">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="HospitalProviderSpellIdentifier" type="ns:HospitalProviderSpellNumber_Type" minOccurs="0"/>
+						<xs:element name="AdministrativeCategoryCodeOnAdmission" type="ns:AdministrativeCategoryCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="PatientClassificationCode" type="ns:PatientClassificationCode_Type" minOccurs="0"/>
+						<xs:element name="MethodOfAdmission_HospitalProviderSpell" type="ns:AdmissionMethodCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="AdmissionSource_HospitalProviderSpell" type="ns:SourceOfAdmissionCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="StartDate_HospitalProviderSpell" type="ns:StartDate_HospitalProviderSpell_Type"/>
+						<xs:element name="StartTime_HospitalProviderSpell" type="ns:StartTime_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="AgeOnAdmission" type="ns:AgeOnAdmission_Type"/>
+						<xs:element name="AmbulanceCallIdentifier" type="ns:AmbulanceIncidentNumber_Type" minOccurs="0"/>
+						<xs:element name="OrganisationIdentifier_ConveyingAmbulanceTrust" type="ns:OrganisationCodeConveyingAmbulanceTrust_Type" minOccurs="0"/>
+						<xs:element name="CareContactIdentifier_AmbulanceService" type="ns:CareContactIdentifierAmbulanceService_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="DischargeCharacteristics" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="DestinationOfDischarge_HospitalProviderSpell" type="ns:DischargeDestinationCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="MethodOfDischarge_HospitalProviderSpell" type="ns:DischargeMethodCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="DischargeReadyDate_HospitalProviderSpell" type="ns:DischargeReadyDate_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="DischargeDate_HospitalProviderSpell" type="ns:DischargeDate_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="DischargeTime_HospitalProviderSpell" type="ns:DischargeTime_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="DischargedToNHSAtHomeServiceIndicator" type="ns:DischargedToHospitalAtHomeServiceIndicator_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="HospitalProviderSpellPsychiatric_Structure">
+		<xs:sequence>
+			<xs:element name="AdmissionCharacteristics">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="HospitalProviderSpellIdentifier" type="ns:HospitalProviderSpellNumber_Type" minOccurs="0"/>
+						<xs:element name="AdministrativeCategoryCodeOnAdmission" type="ns:AdministrativeCategoryCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="PatientClassificationCode" type="ns:PatientClassificationCode_Type" minOccurs="0"/>
+						<xs:element name="MethodOfAdmission_HospitalProviderSpell" type="ns:AdmissionMethodCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="AdmissionSource_HospitalProviderSpell" type="ns:SourceOfAdmissionCode_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="StartDate_HospitalProviderSpell" type="ns:StartDate_HospitalProviderSpell_Type"/>
+						<xs:element name="StartTime_HospitalProviderSpell" type="ns:StartTime_HospitalProviderSpell_Type" minOccurs="0"/>
+						<xs:element name="AgeOnAdmission" type="ns:AgeOnAdmission_Type"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FinishedBirthEpisode_Structure">
+		<xs:sequence>
+			<xs:element name="EpisodeCharacteristics">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="EpisodeNumber" type="ns:EpisodeNumber_Type" minOccurs="0"/>
+						<xs:element name="LastEpisodeInSpellIndicatorCode" type="ns:LastEpisodeInSpellIndicatorCode_Type" minOccurs="0"/>
+						<xs:element name="NeonatalLevelOfCareCode" type="ns:NeonatalLevelOfCareCode_Type" minOccurs="0"/>
+						<xs:element name="StartDate_Episode" type="ns:StartDate_Episode_Type"/>
+						<xs:element name="StartTime_Episode" type="ns:StartTime_Episode_Type" minOccurs="0"/>
+						<xs:element name="EndDate_Episode" type="ns:EndDate_Episode_Type"/>
+						<xs:element name="EndTime_Episode" type="ns:EndTime_Episode_Type" minOccurs="0"/>
+						<xs:element name="AgeAtCDSActivityDate" type="ns:AgeAtCDSActivityDate_Type"/>
+						<xs:element name="OverseasVisitorChargingCategory" type="ns:OverseasVisitorChargingCategory_Structure" minOccurs="0" maxOccurs="5"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ServiceAgreementDetails" type="ns:ServiceAgreementDetails_Structure"/>
+			<xs:element name="BirthEpisodePersonGroup_CareProfessional" type="ns:PersonGroupCareProfessional_Structure" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="ClinicalDiagnosisDetails" type="ns:ClinicalDiagnosis_Structure" minOccurs="0"/>
+			<xs:element name="ClinicalTreatmentDetails" type="ns:ClinicalActivity_Structure" minOccurs="0"/>
+			<xs:element name="APCLocationGroup" type="ns:APCLocationGroup_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FinishedGeneralEpisode_Structure">
+		<xs:sequence>
+			<xs:element name="EpisodeCharacteristics">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="EpisodeNumber" type="ns:EpisodeNumber_Type" minOccurs="0"/>
+						<xs:element name="LastEpisodeInSpellIndicatorCode" type="ns:LastEpisodeInSpellIndicatorCode_Type" minOccurs="0"/>
+						<xs:element name="NeonatalLevelOfCareCode" type="ns:NeonatalLevelOfCareCode_Type" minOccurs="0"/>
+						<xs:element name="FirstRegularDayOrNightAdmissionCode" type="ns:FirstRegularDayOrNightAdmissionCode_Type" minOccurs="0"/>
+						<xs:element name="PsychiatricPatientStatusCode" type="ns:PsychiatricPatientStatusCode_Type" minOccurs="0"/>
+						<xs:element name="StartDate_Episode" type="ns:StartDate_Episode_Type"/>
+						<xs:element name="StartTime_Episode" type="ns:StartTime_Episode_Type" minOccurs="0"/>
+						<xs:element name="EndDate_Episode" type="ns:EndDate_Episode_Type"/>
+						<xs:element name="EndTime_Episode" type="ns:EndTime_Episode_Type" minOccurs="0"/>
+						<xs:element name="AgeAtCDSActivityDate" type="ns:AgeAtCDSActivityDate_Type"/>
+						<xs:element name="RehabilitationAssessmentTeamType" type="ns:RehabilitationAssessmentTeamType_Type" minOccurs="0"/>
+						<xs:element name="LengthOfStayAdjustment" type="ns:LengthOfStayAdjustment_Structure" minOccurs="0"/>
+						<xs:element name="OverseasVisitorChargingCategory" type="ns:OverseasVisitorChargingCategory_Structure" minOccurs="0" maxOccurs="5"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ServiceAgreementDetails" type="ns:ServiceAgreementDetails_Structure"/>
+			<xs:element name="PersonGroup_CareProfessional" type="ns:PersonGroupCareProfessional_Structure" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="ClinicalDiagnosisDetails" type="ns:ClinicalDiagnosis_FitNote_GeneralEpisode_Structure" minOccurs="0"/>
+			<xs:element name="ClinicalTreatmentDetails" type="ns:ClinicalActivity_Structure" minOccurs="0"/>
+			<xs:element name="APCLocationGroup" type="ns:APCLocationGroup_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FinishedDeliveryEpisode_Structure">
+		<xs:sequence>
+			<xs:element name="EpisodeCharacteristics">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="EpisodeNumber" type="ns:EpisodeNumber_Type" minOccurs="0"/>
+						<xs:element name="LastEpisodeInSpellIndicatorCode" type="ns:LastEpisodeInSpellIndicatorCode_Type" minOccurs="0"/>
+						<xs:element name="PsychiatricPatientStatusCode" type="ns:PsychiatricPatientStatusCode_Type" minOccurs="0"/>
+						<xs:element name="StartDate_Episode" type="ns:StartDate_Episode_Type"/>
+						<xs:element name="StartTime_Episode" type="ns:StartTime_Episode_Type" minOccurs="0"/>
+						<xs:element name="EndDate_Episode" type="ns:EndDate_Episode_Type"/>
+						<xs:element name="EndTime_Episode" type="ns:EndTime_Episode_Type" minOccurs="0"/>
+						<xs:element name="AgeAtCDSActivityDate" type="ns:AgeAtCDSActivityDate_Type"/>
+						<xs:element name="RehabilitationAssessmentTeamType" type="ns:RehabilitationAssessmentTeamType_Type" minOccurs="0"/>
+						<xs:element name="OverseasVisitorChargingCategory" type="ns:OverseasVisitorChargingCategory_Structure" minOccurs="0" maxOccurs="5"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ServiceAgreementDetails" type="ns:ServiceAgreementDetails_Structure"/>
+			<xs:element name="PersonGroup_CareProfessional" type="ns:PersonGroupCareProfessional_Structure" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="ClinicalDiagnosisDetails" type="ns:ClinicalDiagnosis_Structure" minOccurs="0"/>
+			<xs:element name="ClinicalTreatmentDetails" type="ns:ClinicalActivity_Structure" minOccurs="0"/>
+			<xs:element name="APCLocationGroup" type="ns:APCLocationGroup_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BirthEpisode_ActivityCharacteristics_Structure">
+		<xs:sequence>
+			<xs:element name="EpisodeCharacteristics">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="EpisodeNumber" type="ns:EpisodeNumber_Type" minOccurs="0"/>
+						<xs:element name="LastEpisodeInSpellIndicatorCode" type="ns:LastEpisodeInSpellIndicatorCode_Type" minOccurs="0"/>
+						<xs:element name="NeonatalLevelOfCareCode" type="ns:NeonatalLevelOfCareCode_Type" minOccurs="0"/>
+						<xs:element name="StartDate_Episode" type="ns:StartDate_Episode_Type"/>
+						<xs:element name="StartTime_Episode" type="ns:StartTime_Episode_Type" minOccurs="0"/>
+						<xs:element name="EndDate_Episode" type="ns:EndDate_Episode_Type" minOccurs="0"/>
+						<xs:element name="EndTime_Episode" type="ns:EndTime_Episode_Type" minOccurs="0"/>
+						<xs:element name="AgeAtCDSActivityDate" type="ns:AgeAtCDSActivityDate_Type"/>
+						<xs:element name="OverseasVisitorChargingCategory" type="ns:OverseasVisitorChargingCategory_Structure" minOccurs="0" maxOccurs="5"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ServiceAgreementDetails" type="ns:ServiceAgreementDetails_Structure"/>
+			<xs:element name="PersonGroup_CareProfessional" type="ns:PersonGroupCareProfessional_Structure" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="ClinicalDiagnosisDetails" type="ns:ClinicalDiagnosis_Structure" minOccurs="0"/>
+			<xs:element name="ClinicalTreatmentDetails" type="ns:ClinicalActivity_Structure" minOccurs="0"/>
+			<xs:element name="APCLocationGroup" type="ns:APCLocationGroup_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CareEpisode_ActivityCharacteristics_Structure">
+		<xs:sequence>
+			<xs:element name="EpisodeCharacteristics">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="EpisodeNumber" type="ns:EpisodeNumber_Type" minOccurs="0"/>
+						<xs:element name="LastEpisodeInSpellIndicatorCode" type="ns:LastEpisodeInSpellIndicatorCode_Type" minOccurs="0"/>
+						<xs:element name="NeonatalLevelOfCareCode" type="ns:NeonatalLevelOfCareCode_Type" minOccurs="0"/>
+						<xs:element name="FirstRegularDayOrNightAdmissionCode" type="ns:FirstRegularDayOrNightAdmissionCode_Type" minOccurs="0"/>
+						<xs:element name="PsychiatricPatientStatusCode" type="ns:PsychiatricPatientStatusCode_Type" minOccurs="0"/>
+						<xs:element name="StartDate_Episode" type="ns:StartDate_Episode_Type"/>
+						<xs:element name="StartTime_Episode" type="ns:StartTime_Episode_Type" minOccurs="0"/>
+						<xs:element name="EndDate_Episode" type="ns:EndDate_Episode_Type" minOccurs="0"/>
+						<xs:element name="EndTime_Episode" type="ns:EndTime_Episode_Type" minOccurs="0"/>
+						<xs:element name="AgeAtCDSActivityDate" type="ns:AgeAtCDSActivityDate_Type"/>
+						<xs:element name="RehabilitationAssessmentTeamType" type="ns:RehabilitationAssessmentTeamType_Type" minOccurs="0"/>
+						<xs:element name="LengthOfStayAdjustment" type="ns:LengthOfStayAdjustment_Structure" minOccurs="0"/>
+						<xs:element name="OverseasVisitorChargingCategory" type="ns:OverseasVisitorChargingCategory_Structure" minOccurs="0" maxOccurs="5"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ServiceAgreementDetails" type="ns:ServiceAgreementDetails_Structure"/>
+			<xs:element name="PersonGroup_CareProfessional" type="ns:PersonGroupCareProfessional_Structure" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="ClinicalDiagnosisDetails" type="ns:ClinicalDiagnosis_FitNote_GeneralEpisode_Structure" minOccurs="0"/>
+			<xs:element name="ClinicalTreatmentDetails" type="ns:ClinicalActivity_Structure" minOccurs="0"/>
+			<xs:element name="APCLocationGroup" type="ns:APCLocationGroup_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DeliveryEpisode_ActivityCharacteristics_Structure">
+		<xs:sequence>
+			<xs:element name="EpisodeCharacteristics">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="EpisodeNumber" type="ns:EpisodeNumber_Type" minOccurs="0"/>
+						<xs:element name="LastEpisodeInSpellIndicatorCode" type="ns:LastEpisodeInSpellIndicatorCode_Type" minOccurs="0"/>
+						<xs:element name="PsychiatricPatientStatusCode" type="ns:PsychiatricPatientStatusCode_Type" minOccurs="0"/>
+						<xs:element name="StartDate_Episode" type="ns:StartDate_Episode_Type"/>
+						<xs:element name="StartTime_Episode" type="ns:StartTime_Episode_Type" minOccurs="0"/>
+						<xs:element name="EndDate_Episode" type="ns:EndDate_Episode_Type" minOccurs="0"/>
+						<xs:element name="EndTime_Episode" type="ns:EndTime_Episode_Type" minOccurs="0"/>
+						<xs:element name="AgeAtCDSActivityDate" type="ns:AgeAtCDSActivityDate_Type"/>
+						<xs:element name="RehabilitationAssessmentTeamType" type="ns:RehabilitationAssessmentTeamType_Type" minOccurs="0"/>
+						<xs:element name="OverseasVisitorChargingCategory" type="ns:OverseasVisitorChargingCategory_Structure" minOccurs="0" maxOccurs="5"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ServiceAgreementDetails" type="ns:ServiceAgreementDetails_Structure"/>
+			<xs:element name="PersonGroup_CareProfessional" type="ns:PersonGroupCareProfessional_Structure" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="ClinicalDiagnosisDetails" type="ns:ClinicalDiagnosis_Structure" minOccurs="0"/>
+			<xs:element name="ClinicalTreatmentDetails" type="ns:ClinicalActivity_Structure" minOccurs="0"/>
+			<xs:element name="APCLocationGroup" type="ns:APCLocationGroup_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PsychiatricEpisode_Structure">
+		<xs:sequence>
+			<xs:element name="EpisodeCharacteristics">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="EpisodeNumber" type="ns:EpisodeNumber_Type" minOccurs="0"/>
+						<xs:element name="PsychiatricPatientStatusCode" type="ns:PsychiatricPatientStatusCode_Type" minOccurs="0"/>
+						<xs:element name="StartDate_Episode" type="ns:StartDate_Episode_Type"/>
+						<xs:element name="StartTime_Episode" type="ns:StartTime_Episode_Type" minOccurs="0"/>
+						<xs:element name="DetainedAndOrLongTermPsychiatricCensusDate" type="ns:DetainedAndOrLongTermPsychiatricCensusDate_Type"/>
+						<xs:element name="OverseasVisitorChargingCategory" type="ns:OverseasVisitorChargingCategory_Structure" minOccurs="1" maxOccurs="1"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ServiceAgreementDetails" type="ns:ServiceAgreementDetails_Structure"/>
+			<xs:element name="PersonGroup_CareProfessional" type="ns:PersonGroupCareProfessional_Structure" minOccurs="0"/>
+			<xs:element name="ClinicalDiagnosisDetails" type="ns:ClinicalDiagnosis_Structure" minOccurs="0"/>
+			<xs:element name="LocationGroup" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="StartOfEpisode" minOccurs="0">
+							<xs:complexType mixed="false">
+								<xs:sequence>
+									<xs:element name="LocationClass" type="ns:LocationClass_Type" minOccurs="0"/>
+									<xs:element name="SiteCodeOfTreatment" type="ns:SiteCodeOfTreatment_Type" minOccurs="0"/>
+									<xs:element name="ActivityLocationType" type="ns:ActivityLocationType_Type" minOccurs="0"/>
+									<xs:element name="IntendedClinicalCareIntensityCode" type="ns:IntendedClinicalCareIntensityCode_Type" minOccurs="0"/>
+									<xs:element name="IntendedAgeGroup" type="ns:IntendedAgeGroup_Type" minOccurs="0"/>
+									<xs:element name="SexOfPatientsCode" type="ns:SexOfPatientsCode_Type" minOccurs="0"/>
+									<xs:element name="WardDayPeriodAvailabilityCode" type="ns:WardDayPeriodAvailabilityCode_Type" minOccurs="0"/>
+									<xs:element name="WardNightPeriodAvailabilityCode" type="ns:WardNightPeriodAvailabilityCode_Type" minOccurs="0"/>
+									<xs:element name="WardSecurityLevel" type="ns:WardSecurityLevel_Type" minOccurs="0"/>
+									<xs:element name="WardCode" type="ns:WardCode_Type" minOccurs="0"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="WardStayAtPsychiatricCensusDate" minOccurs="0">
+							<xs:complexType mixed="false">
+								<xs:sequence>
+									<xs:element name="LocationClass" type="ns:LocationClass_Type" minOccurs="0"/>
+									<xs:element name="SiteCodeOfTreatment" type="ns:SiteCodeOfTreatment_Type" minOccurs="0"/>
+									<xs:element name="ActivityLocationType" type="ns:ActivityLocationType_Type" minOccurs="0"/>
+									<xs:element name="IntendedClinicalCareIntensityCode" type="ns:IntendedClinicalCareIntensityCode_Type" minOccurs="0"/>
+									<xs:element name="IntendedAgeGroup" type="ns:IntendedAgeGroup_Type" minOccurs="0"/>
+									<xs:element name="SexOfPatientsCode" type="ns:SexOfPatientsCode_Type" minOccurs="0"/>
+									<xs:element name="WardDayPeriodAvailabilityCode" type="ns:WardDayPeriodAvailabilityCode_Type" minOccurs="0"/>
+									<xs:element name="WardNightPeriodAvailabilityCode" type="ns:WardNightPeriodAvailabilityCode_Type" minOccurs="0">
+										<xs:annotation>
+											<xs:documentation xml:lang="en">
+												<Mandatory>M</Mandatory>
+												<U_A/>
+												<HES>Yes</HES>
+											</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+									<xs:element name="DetainedAndOrLongTermPsychiatricCensusDate" type="ns:DetainedAndOrLongTermPsychiatricCensusDate_Type" minOccurs="0"/>
+									<xs:element name="WardSecurityLevel" type="ns:WardSecurityLevel_Type" minOccurs="0"/>
+									<xs:element name="WardCode" type="ns:WardCode_Type" minOccurs="0"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="APCLocationGroup_Structure">
+		<xs:sequence>
+			<xs:element name="StartOfEpisode" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="OrganisationSiteIdentifier_OfTreatment" type="ns:SiteCodeOfTreatment_Type" minOccurs="0"/>
+						<xs:element name="ActivityLocationType" type="ns:ActivityLocationType_Type" minOccurs="0"/>
+						<xs:element name="WardIntendedClinicalCareIntensity" type="ns:IntendedClinicalCareIntensityCode_Type" minOccurs="0"/>
+						<xs:element name="WardIntendedAgeGroup" type="ns:IntendedAgeGroup_Type" minOccurs="0"/>
+						<xs:element name="WardIntendedSexOfPatients" type="ns:SexOfPatientsCode_Type" minOccurs="0"/>
+						<xs:element name="WardIntendedDayPeriodAvailability" type="ns:WardDayPeriodAvailabilityCode_Type" minOccurs="0"/>
+						<xs:element name="WardIntendedNightPeriodAvailability" type="ns:WardNightPeriodAvailabilityCode_Type" minOccurs="0"/>
+						<xs:element name="WardSecurityLevel" type="ns:WardSecurityLevel_Type" minOccurs="0"/>
+						<xs:element name="WardCode" type="ns:WardCode_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="WardStay" minOccurs="0" maxOccurs="97">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="OrganisationSiteIdentifier_OfTreatment" type="ns:SiteCodeOfTreatment_Type" minOccurs="0"/>
+						<xs:element name="ActivityLocationType" type="ns:ActivityLocationType_Type" minOccurs="0"/>
+						<xs:element name="WardIntendedClinicalCareIntensity" type="ns:IntendedClinicalCareIntensityCode_Type" minOccurs="0"/>
+						<xs:element name="WardIntendedAgeGroup" type="ns:IntendedAgeGroup_Type" minOccurs="0"/>
+						<xs:element name="WardIntendedSexOfPatients" type="ns:SexOfPatientsCode_Type" minOccurs="0"/>
+						<xs:element name="WardIntendedDayPeriodAvailability" type="ns:WardDayPeriodAvailabilityCode_Type" minOccurs="0"/>
+						<xs:element name="WardIntendedNightPeriodAvailability" type="ns:WardNightPeriodAvailabilityCode_Type" minOccurs="0"/>
+						<xs:element name="StartDate_WardStay" type="ns:StartDate_Type" minOccurs="0"/>
+						<xs:element name="StartTime_WardStay" type="ns:StartTime_Type" minOccurs="0"/>
+						<xs:element name="EndDate_WardStay" type="ns:EndDate_Type" minOccurs="0"/>
+						<xs:element name="EndTime_WardStay" type="ns:EndTime_Type" minOccurs="0"/>
+						<xs:element name="WardSecurityLevel" type="ns:WardSecurityLevel_Type" minOccurs="0"/>
+						<xs:element name="WardCode" type="ns:WardCode_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="EndOfEpisode" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="OrganisationSiteIdentifier_OfTreatment" type="ns:SiteCodeOfTreatment_Type" minOccurs="0"/>
+						<xs:element name="ActivityLocationType" type="ns:ActivityLocationType_Type" minOccurs="0"/>
+						<xs:element name="WardIntendedClinicalCareIntensity" type="ns:IntendedClinicalCareIntensityCode_Type" minOccurs="0"/>
+						<xs:element name="WardIntendedAgeGroup" type="ns:IntendedAgeGroup_Type" minOccurs="0"/>
+						<xs:element name="WardIntendedSexOfPatients" type="ns:SexOfPatientsCode_Type" minOccurs="0"/>
+						<xs:element name="WardIntendedDayPeriodAvailability" type="ns:WardDayPeriodAvailabilityCode_Type" minOccurs="0"/>
+						<xs:element name="WardIntendedNightPeriodAvailability" type="ns:WardNightPeriodAvailabilityCode_Type" minOccurs="0"/>
+						<xs:element name="WardSecurityLevel" type="ns:WardSecurityLevel_Type" minOccurs="0"/>
+						<xs:element name="WardCode" type="ns:WardCode_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="HomeLeave" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="StartDate_HomeLeave" type="ns:StartDate_Type" minOccurs="1"/>
+						<xs:element name="StartTime_HomeLeave" type="ns:StartTime_Type" minOccurs="0"/>
+						<xs:element name="EndDate_HomeLeave" type="ns:EndDate_Type" minOccurs="0"/>
+						<xs:element name="EndTime_HomeLeave" type="ns:EndTime_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CriticalCarePeriod_Structure">
+		<xs:sequence>
+			<xs:element name="NeonatalCriticalCarePeriod" type="ns:NeonatalCriticalCarePeriod_Structure" minOccurs="0" maxOccurs="9"/>
+			<xs:element name="PaediatricCriticalCarePeriod" type="ns:PaediatricCriticalCarePeriod_Structure" minOccurs="0" maxOccurs="9"/>
+			<xs:element name="AdultCriticalCarePeriod" type="ns:AdultCriticalCarePeriod_Structure" minOccurs="0" maxOccurs="9"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AdultOrPaediatricCriticalCarePeriod_Structure">
+		<xs:complexContent>
+			<xs:restriction base="ns:CriticalCarePeriod_Structure">
+				<xs:sequence>
+					<xs:element name="PaediatricCriticalCarePeriod" type="ns:PaediatricCriticalCarePeriod_Structure" minOccurs="0" maxOccurs="9"/>
+					<xs:element name="AdultCriticalCarePeriod" type="ns:AdultCriticalCarePeriod_Structure" minOccurs="0" maxOccurs="9"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="NeonatalCriticalCarePeriod_Structure">
+		<xs:sequence>
+			<xs:element name="NCC_AdmissionCharacteristics">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="CriticalCareLocalIdentifier" type="ns:CriticalCareLocalIdentifier_Type"/>
+						<xs:element name="CriticalCareStartDate" type="ns:CriticalCareStartDate_Type"/>
+						<xs:element name="CriticalCareStartTime" type="ns:CriticalCareStartTime_Type"/>
+						<xs:element name="CriticalCareUnitFunction" type="ns:CriticalCareUnitFunction_Neonatal_Type"/>
+						<xs:element name="GestationLength_AtDelivery" type="ns:GestationLength_Type"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="NCC_CareActivityGroup" maxOccurs="999">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="ActivityDate_CriticalCare" type="ns:ActivityDate_CriticalCare_Type"/>
+						<xs:element name="PersonWeight" type="ns:PersonWeight_Type" minOccurs="0"/>
+						<xs:element name="CriticalCareActivityCode" type="ns:CriticalCareActivityCode_Type" maxOccurs="20"/>
+						<xs:element name="HighCostDrugs_OPCS" type="ns:HighCostDrugs_OPCS_Type" minOccurs="0" maxOccurs="20"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="NCC_DischargeCharacteristics" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="CriticalCareDischargeDate" type="ns:CriticalCareDischargeDate_Type"/>
+						<xs:element name="CriticalCareDischargeTime" type="ns:CriticalCareDischargeTime_Type"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="NeonatalCriticalCareStructure" type="ns:CriticalCareUnitFunction_Neonatal_Type" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="PaediatricCriticalCarePeriod_Structure">
+		<xs:sequence>
+			<xs:element name="PCC_AdmissionCharacteristics">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="CriticalCareLocalIdentifier" type="ns:CriticalCareLocalIdentifier_Type"/>
+						<xs:element name="CriticalCareStartDate" type="ns:CriticalCareStartDate_Type"/>
+						<xs:element name="CriticalCareStartTime" type="ns:CriticalCareStartTime_Type"/>
+						<xs:element name="CriticalCareUnitFunction" type="ns:CriticalCareUnitFunction_Paediatric_Type"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="PCC_CareActivityGroup" maxOccurs="999">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="ActivityDate_CriticalCare" type="ns:ActivityDate_CriticalCare_Type"/>
+						<xs:element name="CriticalCareActivityCode" type="ns:CriticalCareActivityCode_Type" maxOccurs="20"/>
+						<xs:element name="HighCostDrugs_OPCS" type="ns:HighCostDrugs_OPCS_Type" minOccurs="0" maxOccurs="20"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="PCC_DischargeCharacteristics" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="CriticalCareDischargeDate" type="ns:CriticalCareDischargeDate_Type"/>
+						<xs:element name="CriticalCareDischargeTime" type="ns:CriticalCareDischargeTime_Type"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="PaediatricCriticalCareStructure" type="ns:CriticalCareUnitFunction_Paediatric_Type" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="AdultCriticalCarePeriod_Structure">
+		<xs:sequence>
+			<xs:element name="ACC_AdmissionCharacteristics">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="CriticalCareLocalIdentifier" type="ns:CriticalCareLocalIdentifier_Type"/>
+						<xs:element name="CriticalCareStartDate" type="ns:CriticalCareStartDate_Type"/>
+						<xs:element name="CriticalCareStartTime" type="ns:CriticalCareStartTime_Type" minOccurs="0"/>
+						<xs:element name="CriticalCareUnitFunction" type="ns:CriticalCareUnitFunction_Adult_Type"/>
+						<xs:element name="CriticalCareUnitBedConfiguration" type="ns:CriticalCareUnitBedConfiguration_Type" minOccurs="0"/>
+						<xs:element name="CriticalCareAdmissionSource" type="ns:CriticalCareAdmissionSource_Type" minOccurs="0"/>
+						<xs:element name="CriticalCareSourceLocation" type="ns:CriticalCareSourceLocation_Type" minOccurs="0"/>
+						<xs:element name="CriticalCareAdmissionType" type="ns:CriticalCareAdmissionType_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ACC_CareActivityGroup">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="AdvancedRespiratorySupportDays" type="ns:AdvancedRespiratorySupportDays_Type" minOccurs="0"/>
+						<xs:element name="BasicRespiratorySupportDays" type="ns:BasicRespiratorySupportDays_Type" minOccurs="0"/>
+						<xs:element name="AdvancedCardiovascularSupportDays" type="ns:AdvancedCardiovascularSupportDays_Type" minOccurs="0"/>
+						<xs:element name="BasicCardiovascularSupportDays" type="ns:BasicCardiovascularSupportDays_Type" minOccurs="0"/>
+						<xs:element name="RenalSupportDays" type="ns:RenalSupportDays_Type" minOccurs="0"/>
+						<xs:element name="NeurologicalSupportDays" type="ns:NeurologicalSupportDays_Type" minOccurs="0"/>
+						<xs:element name="GastroIntestinalSupportDays" type="ns:GastroIntestinalSupportDays_Type" minOccurs="0"/>
+						<xs:element name="DermatologicalSupportDays" type="ns:DermatologicalSupportDays_Type" minOccurs="0"/>
+						<xs:element name="LiverSupportDays" type="ns:LiverSupportDays_Type" minOccurs="0"/>
+						<xs:element name="OrganSupportMaximum" type="ns:OrganSupportMaximum_Type" minOccurs="0"/>
+						<xs:element name="CriticalCareLevel2Days" type="ns:CriticalCareLevel2Days_Type" minOccurs="0"/>
+						<xs:element name="CriticalCareLevel3Days" type="ns:CriticalCareLevel3Days_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ACC_ActivityCharacteristics" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="ActivityDate_CriticalCare" type="ns:Date_Type"/>
+						<xs:element name="OrganSystemSupported" type="ns:OrganSystemSupport_type" maxOccurs="9"/>
+						<xs:element name="CriticalCareLevel" type="ns:CriticalCareLevel_type"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ACC_DischargeCharacteristics" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="CriticalCareDischargeDate" type="ns:CriticalCareDischargeDate_Type"/>
+						<xs:element name="CriticalCareDischargeTime" type="ns:CriticalCareDischargeTime_Type"/>
+						<xs:element name="CriticalCareDischargeReadyDate" type="ns:CriticalCareDischargeReadyDate_Type" minOccurs="0"/>
+						<xs:element name="CriticalCareDischargeReadyTime" type="ns:CriticalCareDischargeReadyTime_Type" minOccurs="0"/>
+						<xs:element name="CriticalCareDischargeStatus" type="ns:CriticalCareDischargeStatus_Type" minOccurs="0"/>
+						<xs:element name="CriticalCareDischargeDestination" type="ns:CriticalCareDischargeDestination_Type" minOccurs="0"/>
+						<xs:element name="CriticalCareDischargeLocation" type="ns:CriticalCareDischargeLocation_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="AdultCriticalCareStructure" type="ns:CriticalCareUnitFunction_Adult_Type" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="AntenatalCare_Structure">
+		<xs:sequence>
+			<xs:element name="ActivityCharacteristics" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="FirstAntenatalAssessmentDate" type="ns:FirstAntenatalAssessmentDate_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="PersonGroup_ResponsibleClinician" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="GeneralMedicalPractitioner_AntenatalCare" type="ns:GeneralMedicalPractitioner_AntenatalCare_Type" minOccurs="0"/>
+						<xs:element name="GeneralMedicalPractitionerPractice_PatientAntenatalCare" type="ns:GeneralMedicalPractitionerPractice_AntenatalCare_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="LocationGroup" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="DeliveryPlaceIntended" minOccurs="0">
+							<xs:complexType mixed="false">
+								<xs:sequence>
+									<xs:element name="ActivityLocationType" type="ns:ActivityLocationType_Type" minOccurs="0"/>
+									<xs:element name="DeliveryPlaceChangeReasonCode" type="ns:DeliveryPlaceChangeReasonCode_Type" minOccurs="0"/>
+									<xs:element name="DeliveryPlaceTypeCode_Intended" type="ns:DeliveryPlaceTypeCode_Intended_Type" minOccurs="0"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BirthOccurrence_Structure">
+		<xs:sequence>
+			<xs:element name="ActivityCharacteristics" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="BirthOrder" type="ns:BirthOrder_Type" minOccurs="0"/>
+						<xs:element name="DeliveryMethodCode" type="ns:DeliveryMethodCode_Type" minOccurs="0"/>
+						<xs:element name="GestationLength_Assessment" type="ns:GestationLengthAssessment_Type" minOccurs="0"/>
+						<xs:element name="ResuscitationMethodCode" type="ns:ResuscitationMethodCode_Type" minOccurs="0"/>
+						<xs:element name="StatusOfPersonConductingDeliveryCode" type="ns:StatusOfPersonConductingDeliveryCode_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="PersonGroup_Baby" type="ns:PersonGroup_Baby_Structure" minOccurs="0"/>
+			<xs:element name="LocationGroup" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="DeliveryPlaceActual" minOccurs="0">
+							<xs:complexType mixed="false">
+								<xs:sequence>
+									<xs:element name="ActivityLocationType" type="ns:ActivityLocationType_Type" minOccurs="0"/>
+									<xs:element name="DeliveryPlaceTypeCode_Actual" type="ns:DeliveryPlaceTypeCode_Actual_Type" minOccurs="0"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DeliveryOccurrence_Structure">
+		<xs:sequence>
+			<xs:element name="ActivityCharacteristics" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="BirthOrder" type="ns:BirthOrder_Type" minOccurs="0"/>
+						<xs:element name="DeliveryMethodCode" type="ns:DeliveryMethodCode_Type" minOccurs="0"/>
+						<xs:element name="GestationLength_Assessment" type="ns:GestationLength_Type" minOccurs="0"/>
+						<xs:element name="ResuscitationMethodCode" type="ns:ResuscitationMethodCode_Type" minOccurs="0"/>
+						<xs:element name="StatusOfPersonConductingDeliveryCode" type="ns:StatusOfPersonConductingDeliveryCode_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="PersonGroup_Mother" type="ns:PersonGroup_Mother_Structure" minOccurs="0"/>
+			<xs:element name="LocationGroup" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="DeliveryPlaceActual" minOccurs="0">
+							<xs:complexType mixed="false">
+								<xs:sequence>
+									<xs:element name="ActivityLocationType" type="ns:ActivityLocationType_Type" minOccurs="0"/>
+									<xs:element name="DeliveryPlaceTypeCode_Actual" type="ns:DeliveryPlaceTypeCode_Actual_Type" minOccurs="0"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="LabourDelivery_Structure">
+		<xs:sequence>
+			<xs:element name="ActivityCharacteristics" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="AnaestheticGivenDuringLabourOrDeliveryCode" type="ns:AnaestheticGivenDuringLabourOrDeliveryCode_Type" minOccurs="0"/>
+						<xs:element name="AnaestheticGivenPostLabourOrDeliveryCode" type="ns:AnaestheticGivenPostLabourOrDeliveryCode_Type" minOccurs="0"/>
+						<xs:element name="GestationLength_LabourOnset" type="ns:GestationLengthLabourOnset_Type" minOccurs="0"/>
+						<xs:element name="LabourOrDeliveryOnsetMethodCode" type="ns:LabourOrDeliveryOnsetMethodCode_Type" minOccurs="0"/>
+						<xs:element name="DeliveryTimestamp" type="ns:DeliveryTimestamp_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OtherLabourDelivery_Structure">
+		<xs:sequence>
+			<xs:element name="ActivityCharacteristics">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="AnaestheticGivenDuringLabourOrDeliveryCode" type="ns:AnaestheticGivenDuringLabourOrDeliveryCode_Type" minOccurs="0"/>
+						<xs:element name="AnaestheticGivenPostLabourOrDeliveryCode" type="ns:AnaestheticGivenPostLabourOrDeliveryCode_Type" minOccurs="0"/>
+						<xs:element name="GestationLength_LabourOnset" type="ns:GestationLength_Type" minOccurs="0"/>
+						<xs:element name="LabourOrDeliveryOnsetMethodCode" type="ns:LabourOrDeliveryOnsetMethodCode_Type" minOccurs="0"/>
+						<xs:element name="DeliveryTimestamp" type="ns:DeliveryTimestamp_Type" minOccurs="1"/>
+						<xs:element name="AgeAtCDSActivityDate" type="ns:AgeAtCDSActivityDate_Type"/>
+						<xs:element name="OverseasVisitorChargingCategoryAtCDSActivityDate" type="ns:OverseasVisitorStatusClassificationAtCDSActivityDate_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ServiceAgreementDetails" type="ns:ServiceAgreementDetails_Structure"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Pregnancy_Structure">
+		<xs:sequence>
+			<xs:element name="ActivityCharacteristics" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="NumberOfBabiesIndicationCode" type="ns:NumberOfBabiesIndicationCode_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CareEpisode_Structure">
+		<xs:sequence>
+			<xs:element name="PersonGroup_CareProfessional" type="ns:PersonGroupCareProfessional_Structure" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="ClinicalDiagnosisDetails" type="ns:ClinicalDiagnosis_Structure" minOccurs="0"/>
+			<xs:element name="CareEpisode_EMED3_FitNote" type="ns:EMED3_FitNote_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CareAttendance_Structure">
+		<xs:sequence>
+			<xs:element name="ActivityCharacteristics">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="OutpatientAttendanceIdentifier" type="ns:AttendanceIdentifier_Type" minOccurs="0"/>
+						<xs:element name="AdministrativeCategoryCode" type="ns:AdministrativeCategoryCode_Type" minOccurs="0"/>
+						<xs:element name="AttendanceStatus" type="ns:AttendedOrDidNotAttendCode_Type" minOccurs="0"/>
+						<xs:element name="FirstAttendanceCode" type="ns:FirstAttendanceCode_Type" minOccurs="0"/>
+						<xs:element name="OutpatientAttendanceOutcome" type="ns:OutcomeOfAttendanceCode_Type" minOccurs="0"/>
+						<xs:element name="AppointmentBookedReason" type="ns:AppointmentBookedReason_Type" minOccurs="0"/>
+						<xs:element name="AppointmentDate" type="ns:AppointmentDate_Type"/>
+						<xs:element name="AppointmentTime" type="ns:AppointmentTime_Type" minOccurs="0"/>
+						<xs:element name="ExpectedDurationOfAppointment" type="ns:ExpectedDurationOfAppointment_Type" minOccurs="0"/>
+						<xs:element name="AgeAtCDSActivityDate" type="ns:AgeAtCDSActivityDate_Type"/>
+						<xs:element name="OverseasVisitorChargingCategoryAtCDSActivityDate" type="ns:OverseasVisitorStatusClassificationAtCDSActivityDate_Type" minOccurs="0"/>
+						<xs:element name="EarliestReasonableOfferDate" type="ns:EarliestReasonableOfferDate_Type" minOccurs="0"/>
+						<xs:element name="EarliestClinicallyAppropriateDate" type="ns:EarliestClinicallyAppropriateDate_Type" minOccurs="0"/>
+						<xs:element name="LatestClinicallyAppropriateDate" type="ns:LatestClinicallyAppropriateDate_Type" minOccurs="0"/>
+						<xs:element name="ConsultationMechanism" type="ns:ConsultationMechanism_Type" minOccurs="0"/>
+						<xs:element name="ConsultationType" type="ns:ConsultationType_Type" minOccurs="0"/>
+						<xs:element name="MultiProfOrDiscIndCode" type="ns:MultiProfOrDiscIndCode_Type" minOccurs="0"/>
+						<xs:element name="RehabilitationAssessmentTeamType" type="ns:RehabilitationAssessmentTeamType_Type" minOccurs="0"/>
+						<xs:element name="PatientOnPatientInitiatedOutpatientFollowUpPathwayIndicatorAtCDSActivityDate" type="ns:PatientOnPatientInitiatedOutpatientFollowUpPathwayIndicatorAtCDSActivityDate_Type" minOccurs="0"/>
+						<xs:element name="PatientSubjectToRemoteMonitoringIndicatorAtCDSActivityDate" type="ns:PatientSubjectToRemoteMonitoringIndicatorAtCDSActivityDate_Type" minOccurs="0"/>
+						<xs:element name="PersonalisedOutpatientFollowUpPathwayReviewDate" type="ns:PersonalisedOutpatientFollowUpPathwayReviewDate_Type" minOccurs="0"/>
+						<xs:element name="PersonalisedOutpatientFollowUpPathwayExpiryDate" type="ns:PersonalisedOutpatientFollowUpPathwayExpiryDate_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ServiceAgreementDetails" type="ns:ServiceAgreementDetails_Structure"/>
+			<xs:element name="ClinicalActivityDetails" type="ns:ClinicalActivity_Structure" minOccurs="0"/>
+			<xs:element name="AttendanceLocationGroup" type="ns:AttendanceLocationGroup_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OutpatientReferral_Structure">
+		<xs:sequence>
+			<xs:element name="ActivityCharacteristics" minOccurs="0">
+				<xs:complexType mixed="false">
+					<xs:sequence>
+						<xs:element name="PriorityTypeCode" type="ns:PriorityTypeCode_Type" minOccurs="0"/>
+						<xs:element name="ServiceTypeRequestedCode" type="ns:ServiceTypeRequestedCode_Type" minOccurs="0"/>
+						<xs:element name="SourceOfReferralForOut_Patients" type="ns:SourceOfReferralForOut_Patients_Type" minOccurs="0"/>
+						<xs:element name="ReferralRequestReceivedDate" type="ns:ReferralRequestReceivedDate_Type" minOccurs="0"/>
+						<xs:element name="DirectAccessReferralIndicator" type="ns:DirectAccessReferralIndicator_Type" minOccurs="0"/>
+						<xs:element name="ReferredByFirstContactPractitionerIndicator" type="ns:ReferredByFirstContactPractitionerIndicator_Type" minOccurs="0"/>
+						<xs:element name="ServiceRequestIdentifier" type="ns:ServiceRequestIdentifier_Type" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Referrer" type="ns:Referrer_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MissedAppointmentOccurrence_Structure">
+		<xs:sequence>
+			<xs:element name="LastPatientDidNotAttendDate" type="ns:LastDNAOrPatientCancelledDate_Type" minOccurs="0"/>
+			<xs:element name="LastPatientCancelledDate" type="ns:LastPatientCancelledDate_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AttendanceLocationGroup_Structure">
+		<xs:sequence>
+			<xs:element name="OrganisationSiteIdentifier_OfTreatment" type="ns:SiteCodeOfTreatment_Type" minOccurs="0"/>
+			<xs:element name="ActivityLocationType" type="ns:ActivityLocationType_Type" minOccurs="0"/>
+			<xs:element name="ClinicCode" type="ns:ClinicCode_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="EALEntry_APCReference_Structure">
+		<xs:sequence>
+			<xs:element name="DurationOfElectiveWait" type="ns:DurationOfElectiveWait_Type" minOccurs="0"/>
+			<xs:element name="IntendedManagementCode" type="ns:IntendedManagementCode_Type" minOccurs="0"/>
+			<xs:element name="DecidedToAdmitDate" type="ns:DecidedToAdmitDate_Type" minOccurs="0"/>
+			<xs:element name="EarliestReasonableOfferDate" type="ns:EarliestReasonableOfferDate_Type" minOccurs="0"/>
+			<xs:element name="EarliestClinicallyAppropriateDate" type="ns:EarliestClinicallyAppropriateDate_Type" minOccurs="0"/>
+			<xs:element name="LatestClinicallyAppropriateDate" type="ns:LatestClinicallyAppropriateDate_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AAndEAttendanceLocationGroup_Structure">
+		<xs:sequence>
+			<xs:element name="SiteCodeOfTreatment" type="ns:SiteCodeOfTreatment_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Referral_Structure">
+		<xs:sequence>
+			<xs:element name="DirectAccessReferralIndicator" type="ns:DirectAccessReferralIndicator_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OverseasVisitorChargingCategory_Structure">
+		<xs:sequence>
+			<xs:element name="OverseasVisitorChargingCategory" type="ns:OverseasVisitorClassification_Type" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="OverseasVisitorChargingCategoryApplicableFromDate" type="ns:OverseasVisitorStatusStartDate_Type"/>
+			<xs:element name="OverseasVisitorChargingCategoryApplicableEndDate" type="ns:OverseasVisitorStatusEndDate_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ProfessionalsInvolved_Structure">
+		<xs:sequence>
+			<xs:element name="ProfessionalRegistrationIssuerCode" type="ns:ProfessionalRegistrationIssuerCode_Type"/>
+			<xs:element name="ProfessionalRegistrationEntryIdentifier" type="ns:ProfessionalRegistrationEntryIdentifier_Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OverseasVisitorStatusClassificationAtCDSActivityDate_Structure">
+		<xs:sequence>
+			<xs:element name="OverseasVisitorStatusClassificationAtCDSActivityDate" type="ns:OverseasVisitorStatusClassificationAtCDSActivityDate_Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

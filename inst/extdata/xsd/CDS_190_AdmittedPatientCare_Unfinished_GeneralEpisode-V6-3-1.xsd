@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns="http://www.nhsia.nhs.uk/DataStandards/XMLschema/CDS/ns" targetNamespace="http://www.nhsia.nhs.uk/DataStandards/XMLschema/CDS/ns" elementFormDefault="qualified" attributeFormDefault="unqualified" version="6-3-1">
+	<xs:include schemaLocation="CDS-XML_Standard_Data_Structures-V6-3-1.xsd"/>
+	<xs:complexType name="AdmittedPatientCare_Unfinished_GeneralEpisode_Structure">
+		<xs:sequence>
+			<xs:element name="PatientPathway" type="ns:PatientPathway_Structure" minOccurs="0"/>
+			<xs:element name="PersonGroupPatient_General_Structure" type="ns:PersonGroupPatient_General_Structure"/>
+			<xs:element name="HospitalProviderSpell" type="ns:HospitalProviderSpell_Structure"/>
+			<xs:element name="CareEpisode_ActivityCharacteristics" type="ns:CareEpisode_ActivityCharacteristics_Structure"/>
+			<xs:element name="CriticalCarePeriod" type="ns:CriticalCarePeriod_Structure" minOccurs="0"/>
+			<xs:element name="GPRegistration" type="ns:GPRegistration_Structure" minOccurs="0"/>
+			<xs:element name="Referrer" type="ns:Referrer_Structure" minOccurs="0"/>
+			<xs:element name="Referral" type="ns:Referral_Structure" minOccurs="0"/>
+			<xs:element name="EALEntry_APCReference" type="ns:EALEntry_APCReference_Structure" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

@@ -6,7 +6,7 @@
 app_server <- function(input, output, session) {
 
   # --- Shared schema data reactive ---
-  schema_rds_path <- app_sys("app/schema_data.rds")
+  schema_rds_path <- system.file("extdata/schema_data.rds", package = "cdsvisualiser")
 
   schema_data <- shiny::reactiveVal(
     if (file.exists(schema_rds_path)) {
@@ -26,14 +26,11 @@ app_server <- function(input, output, session) {
     )
 
     tryCatch({
-      xsd_dir  <- normalizePath(
-        file.path(app_sys(".."), "dd_cds_6.3.1_20220629000001"),
-        mustWork = FALSE
-      )
+      xsd_dir  <- system.file("extdata/xsd", package = "cdsvisualiser")
       new_data <- parse_cds_schema(xsd_dir)
 
       # Persist for future app restarts
-      saveRDS(new_data, schema_rds_path)
+      saveRDS(new_data, system.file("extdata/schema_data.rds", package = "cdsvisualiser"))
 
       schema_data(new_data)
       shiny::removeNotification("parsing_notif")

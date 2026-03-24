@@ -1,4 +1,4 @@
-xsd_dir <- here::here("dd_cds_6.3.1_20220629000001")
+xsd_dir <- here::here("inst/extdata/xsd")
 
 # Helper: only run schema-dependent tests if XSD files are present
 skip_if_no_xsd <- function() {
