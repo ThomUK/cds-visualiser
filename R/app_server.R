@@ -5,7 +5,10 @@
 #' @noRd
 app_server <- function(input, output, session) {
   # --- Shared schema data reactive ---
-  schema_rds_path <- system.file("extdata/schema_data.rds", package = "cdsvisualiser")
+  schema_rds_path <- system.file(
+    "extdata/schema_data.rds",
+    package = "cds-visualiser"
+  )
 
   schema_data <- shiny::reactiveVal(
     if (file.exists(schema_rds_path)) {
@@ -19,28 +22,34 @@ app_server <- function(input, output, session) {
   shiny::observeEvent(input$reload_schema, {
     shiny::showNotification(
       "Parsing XSD files — this may take a few seconds...",
-      type     = "message",
+      type = "message",
       duration = NULL,
-      id       = "parsing_notif"
+      id = "parsing_notif"
     )
 
     tryCatch(
       {
-        xsd_dir <- system.file("extdata/xsd", package = "cdsvisualiser")
+        xsd_dir <- system.file("extdata/xsd", package = "cds-visualiser")
         new_data <- parse_cds_schema(xsd_dir)
 
         # Persist for future app restarts
-        saveRDS(new_data, system.file("extdata/schema_data.rds", package = "cdsvisualiser"))
+        saveRDS(
+          new_data,
+          system.file("extdata/schema_data.rds", package = "cds-visualiser")
+        )
 
         schema_data(new_data)
         shiny::removeNotification("parsing_notif")
-        shiny::showNotification("Schema reloaded successfully.", type = "message")
+        shiny::showNotification(
+          "Schema reloaded successfully.",
+          type = "message"
+        )
       },
       error = function(e) {
         shiny::removeNotification("parsing_notif")
         shiny::showNotification(
           glue::glue("Parse error: {conditionMessage(e)}"),
-          type     = "error",
+          type = "error",
           duration = 10
         )
       }

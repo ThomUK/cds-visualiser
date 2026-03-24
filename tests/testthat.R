@@ -1,4 +1,4 @@
 library(testthat)
-library(cdsvisualiser)
+library(cds - visualiser)
 
-test_check("cdsvisualiser")
+test_check("cds-visualiser")

@@ -3,7 +3,7 @@
 #' @param ... path elements passed to `system.file`
 #' @noRd
 app_sys <- function(...) {
-  system.file(..., package = "cdsvisualiser")
+  system.file(..., package = "cds-visualiser")
 }
 
 #' Read App Config
@@ -14,15 +14,17 @@ app_sys <- function(...) {
 #'
 #' @importFrom golem get_golem_config
 #' @noRd
-get_golem_config <- function(value,
-                             config = Sys.getenv(
-                               "GOLEM_CONFIG_ACTIVE",
-                               Sys.getenv(
-                                 "R_CONFIG_ACTIVE",
-                                 "default"
-                               )
-                             ),
-                             use_parent = TRUE) {
+get_golem_config <- function(
+  value,
+  config = Sys.getenv(
+    "GOLEM_CONFIG_ACTIVE",
+    Sys.getenv(
+      "R_CONFIG_ACTIVE",
+      "default"
+    )
+  ),
+  use_parent = TRUE
+) {
   golem::get_golem_config(
     value = value,
     config = config,

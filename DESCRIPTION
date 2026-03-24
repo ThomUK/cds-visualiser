@@ -1,4 +1,4 @@
-Package: cdsvisualiser
+Package: cds-visualiser
 Title: NHS CDS XML Schema Visualiser
 Version: 0.0.0.9000
 Authors@R:
