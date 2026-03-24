@@ -1,6 +1,6 @@
 #' schema_browser UI Function
 #' @noRd
-#' @importFrom shiny NS radioButtons uiOutput
+#' @importFrom shiny NS radioButtons textInput uiOutput
 #' @importFrom bslib layout_sidebar sidebar layout_columns card card_header card_body
 #' @importFrom jsTreeR jstreeOutput
 mod_schema_browser_ui <- function(id) {
@@ -39,7 +39,15 @@ mod_schema_browser_ui <- function(id) {
       col_widths = c(5, 7),
       bslib::card(
         full_screen = TRUE,
-        bslib::card_header("Element Tree"),
+        bslib::card_header(
+          class = "d-flex align-items-center gap-2",
+          "Element Tree",
+          shiny::textInput(
+            ns("search"), NULL,
+            placeholder = "Search\u2026",
+            width = "160px"
+          )
+        ),
         jsTreeR::jstreeOutput(ns("tree"))
       ),
       bslib::card(
@@ -53,12 +61,16 @@ mod_schema_browser_ui <- function(id) {
 
 #' schema_browser Server Functions
 #' @noRd
-#' @importFrom shiny moduleServer reactive req renderUI tagList tags
+#' @importFrom shiny moduleServer reactive debounce req renderUI tagList tags
 #' @importFrom dplyr filter
 #' @importFrom purrr map_lgl
+#' @importFrom stringr regex str_detect
 #' @importFrom jsTreeR renderJstree jstree
 mod_schema_browser_server <- function(id, schema_data) {
   shiny::moduleServer(id, function(input, output, session) {
+
+    search_term <- shiny::reactive({ input$search }) |> shiny::debounce(300)
+
     filtered_elements <- shiny::reactive({
       shiny::req(schema_data())
       code <- input$cds_code
@@ -71,13 +83,22 @@ mod_schema_browser_server <- function(id, schema_data) {
         optional = dplyr::filter(els, !is_required),
         els
       )
+      term <- search_term()
+      if (!is.null(term) && nchar(trimws(term)) > 0) {
+        # Find matching elements, then expand to include all ancestors
+        matching <- dplyr::filter(els, stringr::str_detect(element_name, stringr::regex(term, ignore_case = TRUE)))
+        ancestor_xpaths <- unique(unlist(lapply(matching$xpath, .ancestor_xpaths)))
+        els <- dplyr::filter(els, xpath %in% ancestor_xpaths)
+      }
       els
     })
 
     output$tree <- jsTreeR::renderJstree({
-      els <- shiny::req(filtered_elements())
+      els  <- shiny::req(filtered_elements())
       shiny::req(nrow(els) > 0)
-      nodes <- .build_schema_tree(els)
+      term <- search_term()
+      open_all <- !is.null(term) && nchar(trimws(term)) > 0
+      nodes <- .build_schema_tree(els, open_all = open_all)
       jsTreeR::jstree(nodes, wholerow = TRUE)
     })
 
@@ -236,45 +257,51 @@ mod_schema_browser_server <- function(id, schema_data) {
   paste0("https://www.datadictionary.nhs.uk/data_elements/", slug, ".html")
 }
 
+#' Return all ancestor xpaths of a given xpath (including itself)
+#' @noRd
+.ancestor_xpaths <- function(xpath) {
+  parts <- strsplit(xpath, "/")[[1]]
+  parts <- parts[nchar(parts) > 0]
+  vapply(seq_along(parts), function(i) paste0("/", paste(parts[1:i], collapse = "/")), character(1))
+}
+
 #' Recursively build jsTreeR node list from flat elements table
 #' @noRd
-.build_schema_tree <- function(elements) {
-  # Root elements: those whose parent_xpath is not any element's own xpath
+.build_schema_tree <- function(elements, open_all = FALSE) {
   is_root <- !elements$parent_xpath %in% elements$xpath
-  roots <- elements[is_root, ]
-
+  roots   <- elements[is_root, ]
   lapply(seq_len(nrow(roots)), function(i) {
-    .make_node(roots[i, ], elements, open = TRUE)
+    .make_node(roots[i, ], elements, open = TRUE, open_all = open_all)
   })
 }
 
 #' Build a single jsTreeR node (with recursive children)
 #' @noRd
-.make_node <- function(row, elements, open = FALSE) {
+.make_node <- function(row, elements, open = FALSE, open_all = FALSE) {
   xp <- row$xpath
   label <- if (isTRUE(row$is_required)) {
     row$element_name
   } else {
     paste0(row$element_name, " \u00b7")
-  } # middle dot for optional
+  }
 
   children_rows <- dplyr::filter(elements, parent_xpath == !!xp)
 
   node <- list(
     text = label,
     data = list(
-      xpath = xp,
+      xpath        = xp,
       element_name = row$element_name,
-      type_name = row$type_name %||% "",
-      is_required = isTRUE(row$is_required),
-      annotation = row$annotation %||% ""
+      type_name    = row$type_name %||% "",
+      is_required  = isTRUE(row$is_required),
+      annotation   = row$annotation %||% ""
     ),
-    state = list(opened = open)
+    state = list(opened = open || open_all)
   )
 
   if (nrow(children_rows) > 0) {
     node$children <- lapply(seq_len(nrow(children_rows)), function(i) {
-      .make_node(children_rows[i, ], elements, open = FALSE)
+      .make_node(children_rows[i, ], elements, open = open_all, open_all = open_all)
     })
   }
 
