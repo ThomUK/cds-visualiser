@@ -1,6 +1,6 @@
 #' data_dictionary UI Function
 #' @noRd
-#' @importFrom shiny NS checkboxInput uiOutput hr
+#' @importFrom shiny NS radioButtons uiOutput
 #' @importFrom bslib layout_sidebar sidebar
 #' @importFrom reactable reactableOutput
 mod_data_dictionary_ui <- function(id) {
@@ -8,25 +8,24 @@ mod_data_dictionary_ui <- function(id) {
   bslib::layout_sidebar(
     sidebar = bslib::sidebar(
       width = 260,
-      shiny::selectInput(
-        ns("cds_filter"), "CDS Type",
+      shiny::radioButtons(
+        ns("cds_code"),
+        "CDS Type",
         choices = c(
-          "All types"                              = "all",
-          "020 \u2013 Outpatient"                  = "020",
-          "120 \u2013 Finished Birth Episode"      = "120",
-          "130 \u2013 Finished General Episode"    = "130",
-          "140 \u2013 Finished Delivery Episode"   = "140",
-          "150 \u2013 Other Birth Event"           = "150",
-          "160 \u2013 Other Delivery"              = "160",
-          "180 \u2013 Unfinished Birth Episode"    = "180",
-          "190 \u2013 Unfinished General Episode"  = "190",
+          "All" = "all",
+          "020 \u2013 Outpatient" = "020",
+          "120 \u2013 Finished Birth Episode" = "120",
+          "130 \u2013 Finished General Episode" = "130",
+          "140 \u2013 Finished Delivery Episode" = "140",
+          "150 \u2013 Other Birth Event" = "150",
+          "160 \u2013 Other Delivery" = "160",
+          "180 \u2013 Unfinished Birth Episode" = "180",
+          "190 \u2013 Unfinished General Episode" = "190",
           "200 \u2013 Unfinished Delivery Episode" = "200"
         ),
         selected = "130"
       ),
-      shiny::checkboxInput(ns("required_only"), "Required fields only", value = FALSE),
-      shiny::hr(),
-      shiny::uiOutput(ns("type_detail"))
+      shiny::uiOutput(ns("field_filter_ui"))
     ),
     reactable::reactableOutput(ns("table"))
   )
@@ -34,131 +33,164 @@ mod_data_dictionary_ui <- function(id) {
 
 #' data_dictionary Server Functions
 #' @noRd
-#' @importFrom shiny moduleServer reactive req renderUI tagList tags
+#' @importFrom shiny moduleServer reactive req renderUI tags observeEvent updateRadioButtons isolate
 #' @importFrom dplyr filter mutate select
 #' @importFrom purrr map_lgl
-#' @importFrom stringr str_count str_replace_all
-#' @importFrom reactable renderReactable reactable colDef getReactableState
-mod_data_dictionary_server <- function(id, schema_data) {
+#' @importFrom stringr str_replace_all
+#' @importFrom reactable renderReactable reactable colDef
+mod_data_dictionary_server <- function(id, schema_data, shared) {
   shiny::moduleServer(id, function(input, output, session) {
-    filtered_elements <- shiny::reactive({
+
+    # --- Shared state sync ---
+    shiny::observeEvent(input$cds_code, {
+      if (!identical(shared$cds_code, input$cds_code)) shared$cds_code <- input$cds_code
+    }, ignoreInit = TRUE)
+    shiny::observeEvent(shared$cds_code, {
+      if (!identical(input$cds_code, shared$cds_code))
+        shiny::updateRadioButtons(session, "cds_code", selected = shared$cds_code)
+    })
+
+    shiny::observeEvent(input$field_filter, {
+      if (!identical(shared$field_filter, input$field_filter)) shared$field_filter <- input$field_filter
+    }, ignoreInit = TRUE)
+    shiny::observeEvent(shared$field_filter, {
+      if (!identical(input$field_filter, shared$field_filter))
+        shiny::updateRadioButtons(session, "field_filter", selected = shared$field_filter)
+    })
+
+    # --- Filtered elements ---
+    cds_els <- shiny::reactive({
       shiny::req(schema_data())
       els <- schema_data()$elements
+      if (input$cds_code == "all") els else dplyr::filter(
+        els,
+        purrr::map_lgl(cds_types, ~ input$cds_code %in% .x)
+      )
+    })
 
-      if (input$cds_filter != "all") {
-        code <- input$cds_filter
-        els <- dplyr::filter(els, purrr::map_lgl(cds_types, ~ code %in% .x))
-      }
-      if (input$required_only) {
-        els <- dplyr::filter(els, is_required)
-      }
+    counts <- shiny::reactive({
+      els <- cds_els()
+      ff  <- input$field_filter %||% "required"
+      primary <- switch(ff,
+        all      = els,
+        required = dplyr::filter(els,  is_required),
+        optional = dplyr::filter(els, !is_required)
+      )
+      list(
+        n_all     = nrow(els),
+        n_req     = sum(els$is_required),
+        n_opt     = sum(!els$is_required),
+        n_primary = nrow(primary)
+      )
+    })
 
+    .count_label <- function(text, count_html) {
+      shiny::tags$span(
+        style = "display:inline-flex; justify-content:space-between; width:190px; vertical-align:middle",
+        shiny::tags$span(text),
+        shiny::tags$span(count_html, style = "color:#888; font-size:0.85em; text-align:right; margin-left:0.5rem")
+      )
+    }
+
+    output$field_filter_ui <- shiny::renderUI({
+      ct <- counts()
+      shiny::radioButtons(
+        session$ns("field_filter"),
+        "Show fields",
+        choiceNames  = list(
+          .count_label("All",           ct$n_all),
+          .count_label("Required only", ct$n_req),
+          .count_label("Optional only", ct$n_opt)
+        ),
+        choiceValues = c("all", "required", "optional"),
+        selected     = shiny::isolate(input$field_filter) %||% shiny::isolate(shared$field_filter) %||% "required"
+      )
+    })
+
+    filtered_elements <- shiny::reactive({
+      shiny::req(cds_els(), input$field_filter)
+      els <- cds_els()
+      els <- switch(input$field_filter,
+        all      = els,
+        required = dplyr::filter(els,  is_required),
+        optional = dplyr::filter(els, !is_required)
+      )
       dplyr::mutate(els,
         path_label = stringr::str_replace_all(xpath, "^/", "") |>
           stringr::str_replace_all("/", " \u203a ")
       ) |>
-        dplyr::select(element_name, type_name, is_required, path_label, xpath, annotation)
+        dplyr::select(element_name, type_name, is_required, path_label, annotation)
     })
 
     output$table <- reactable::renderReactable({
       shiny::req(filtered_elements())
-      reactable::reactable(
-        dplyr::select(filtered_elements(), element_name, type_name, is_required, path_label, annotation),
-        searchable = TRUE,
-        striped = TRUE,
-        highlight = TRUE,
-        selection = "single",
-        onClick = "select",
-        defaultPageSize = 20,
-        columns = list(
-          element_name = reactable::colDef(name = "Element", minWidth = 160),
-          type_name = reactable::colDef(name = "Type", minWidth = 160, na = "\u2013"),
-          is_required = reactable::colDef(
-            name     = "Required",
-            maxWidth = 90,
-            cell     = function(val) if (isTRUE(val)) "\u2713" else ""
-          ),
-          path_label = reactable::colDef(name = "Path", minWidth = 220),
-          annotation = reactable::colDef(name = "Description", minWidth = 200, na = "")
-        )
-      )
-    })
 
-    selected_row <- shiny::reactive({
-      idx <- reactable::getReactableState("table", "selected")
-      shiny::req(idx)
-      filtered_elements()[idx, ]
-    })
+      tbl_id <- session$ns("table")
 
-    output$type_detail <- shiny::renderUI({
-      row <- shiny::req(selected_row())
-      type_nm <- row$type_name %||% ""
-      if (is.na(type_nm)) type_nm <- ""
-      sd <- schema_data()
+      .hdr <- function(label) label
 
-      if (nchar(type_nm) > 0) {
-        type_info <- dplyr::filter(sd$types, type_name == !!type_nm)
-        enums <- dplyr::filter(sd$enumerations, type_name == !!type_nm)
-      } else {
-        type_info <- sd$types[0L, ]
-        enums <- sd$enumerations[0L, ]
-      }
-
-      shiny::tagList(
-        shiny::tags$strong(row$element_name),
-        shiny::tags$p(
-          shiny::tags$em(if (!is.na(type_nm)) type_nm else "(complex type)"),
-          style = "font-size:0.85em; color:#666; margin-bottom:4px"
-        ),
-        if (!is.na(row$annotation) && nchar(row$annotation) > 0) {
-          shiny::tags$p(row$annotation, style = "font-size:0.85em")
-        },
-        if (nrow(type_info) > 0) {
-          constraints <- list(
-            "Base type"    = type_info$base_type[[1]],
-            "Pattern"      = type_info$pattern[[1]],
-            "Max length"   = type_info$max_length[[1]],
-            "Fixed length" = type_info$length[[1]],
-            "Min value"    = type_info$min_inclusive[[1]],
-            "Max value"    = type_info$max_inclusive[[1]]
-          )
-          constraints <- Filter(function(x) !is.null(x) && !is.na(x), constraints)
-          if (length(constraints) > 0) {
-            shiny::tags$dl(
-              class = "row",
-              style = "font-size:0.82em; margin-bottom:4px",
-              lapply(names(constraints), function(nm) {
-                list(
-                  shiny::tags$dt(class = "col-6", nm),
-                  shiny::tags$dd(class = "col-6", as.character(constraints[[nm]]))
-                )
-              })
-            )
-          }
-        },
-        if (nrow(enums) > 0) {
-          shiny::tagList(
-            shiny::tags$p(
-              shiny::tags$strong(glue::glue("Valid codes ({nrow(enums)})")),
-              style = "font-size:0.85em; margin-bottom:2px"
+      # Filter input with placeholder text
+      .flt <- function(placeholder) {
+        function(values, name) {
+          shiny::tags$input(
+            type        = "text",
+            placeholder = placeholder,
+            oninput     = paste0(
+              "Reactable.setFilter('", tbl_id, "', '", name,
+              "', event.target.value || undefined)"
             ),
-            shiny::tags$div(
-              style = "max-height:220px; overflow-y:auto; font-size:0.8em",
-              shiny::tags$table(
-                class = "table table-sm table-hover",
-                shiny::tags$tbody(
-                  lapply(seq_len(nrow(enums)), function(i) {
-                    shiny::tags$tr(
-                      shiny::tags$td(enums$value[[i]], style = "font-weight:600; white-space:nowrap"),
-                      shiny::tags$td(enums$annotation[[i]] %||% "")
-                    )
-                  })
-                )
-              )
-            )
+            style = "width:100%; font-size:0.85em; padding:2px 6px; border:1px solid #ddd; border-radius:3px"
           )
         }
+      }
+
+      tbl <- reactable::reactable(
+        dplyr::select(filtered_elements(), element_name, type_name, is_required, path_label, annotation),
+        filterable      = TRUE,
+        sortable        = TRUE,
+        striped         = TRUE,
+        highlight       = TRUE,
+        defaultPageSize = 20,
+        elementId       = tbl_id,
+        columns = list(
+          element_name = reactable::colDef(
+            header           = .hdr("Element"),
+            minWidth         = 160,
+            defaultSortOrder = "desc",
+            filterInput      = .flt("e.g. NHSNumber")
+          ),
+          type_name    = reactable::colDef(
+            header           = .hdr("Type"),
+            minWidth         = 160,
+            na               = "\u2013",
+            defaultSortOrder = "desc",
+            filterInput      = .flt("e.g. Date_Type")
+          ),
+          is_required  = reactable::colDef(
+            header           = .hdr("Required"),
+            maxWidth         = 95,
+            defaultSortOrder = "desc",
+            cell             = function(val) if (isTRUE(val)) "Y" else "",
+            filterInput      = .flt("Y")
+          ),
+          path_label   = reactable::colDef(
+            header           = .hdr("Path"),
+            minWidth         = 220,
+            defaultSortOrder = "desc",
+            filterInput      = .flt("e.g. HospitalProviderSpell")
+          ),
+          annotation   = reactable::colDef(
+            header           = .hdr("Description"),
+            minWidth         = 200,
+            na               = "",
+            defaultSortOrder = "desc",
+            filterInput      = .flt("Search description")
+          )
+        )
       )
+
+      tbl
     })
+
   })
 }
