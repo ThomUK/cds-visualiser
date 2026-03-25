@@ -13,10 +13,10 @@ app_ui <- function(request) {
       id = "main_nav",
       selected = "schema_browser",
       theme = bslib::bs_theme(
-        version    = 5,
+        version = 5,
         bootswatch = "flatly",
-        primary    = "#005EB8",
-        secondary  = "#AEB7BD"
+        primary = "#005EB8",
+        secondary = "#AEB7BD"
       ),
       bslib::nav_panel(
         title = shiny::tagList(shiny::icon("route"), "Explain CDS"),
@@ -42,11 +42,11 @@ app_ui <- function(request) {
       bslib::nav_item(
         shinyWidgets::actionBttn(
           inputId = "reload_schema",
-          label   = "Reload Schema",
-          icon    = shiny::icon("rotate"),
-          style   = "minimal",
-          size    = "sm",
-          color   = "warning"
+          label = "Reload Schema",
+          icon = shiny::icon("rotate"),
+          style = "minimal",
+          size = "sm",
+          color = "warning"
         )
       )
     )
@@ -54,8 +54,8 @@ app_ui <- function(request) {
 }
 
 #' Add external Resources to the Application
-#' @importFrom golem add_resource_path activate_js favicon bundle_resources
-#' @importFrom shiny tags
+#' @importFrom golem add_resource_path activate_js favicon
+#' @importFrom shiny tags HTML
 #' @noRd
 golem_add_external_resources <- function() {
   add_resource_path(
@@ -65,9 +65,21 @@ golem_add_external_resources <- function() {
 
   tags$head(
     favicon(),
-    bundle_resources(
-      path = app_sys("app/www"),
-      app_title = "CDS Visualiser"
-    )
+    tags$title("CDS Visualiser"),
+    tags$style(HTML("
+      /* Shiny radioButtons uses .radio > label > input + span (Bootstrap 3
+         structure). Make the label flex so span text never wraps under the
+         radio circle. */
+      .radio label {
+        display: inline-flex;
+        align-items: flex-start;
+        gap: 0.4rem;
+      }
+      .radio label input[type='radio'] {
+        flex-shrink: 0;
+        margin-top: 0.25em;
+        margin-right: 0;
+      }
+    "))
   )
 }
