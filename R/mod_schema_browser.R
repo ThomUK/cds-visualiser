@@ -353,8 +353,7 @@ mod_schema_browser_server <- function(id, schema_data, shared) {
                       shiny::tags$td(
                         enums$value[[i]],
                         style = "font-weight:600; white-space:nowrap"
-                      ),
-                      shiny::tags$td(enums$annotation[[i]] %||% "")
+                      )
                     )
                   })
                 )

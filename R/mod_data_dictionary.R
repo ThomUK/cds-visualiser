@@ -119,7 +119,7 @@ mod_data_dictionary_server <- function(id, schema_data, shared) {
         path_label = stringr::str_replace_all(xpath, "^/", "") |>
           stringr::str_replace_all("/", " \u203a ")
       ) |>
-        dplyr::select(element_name, type_name, is_required, path_label, annotation)
+        dplyr::select(element_name, type_name, is_required, path_label)
     })
 
     output$table <- reactable::renderReactable({
@@ -145,7 +145,7 @@ mod_data_dictionary_server <- function(id, schema_data, shared) {
       }
 
       tbl <- reactable::reactable(
-        dplyr::select(filtered_elements(), element_name, type_name, is_required, path_label, annotation),
+        dplyr::select(filtered_elements(), element_name, type_name, is_required, path_label),
         filterable      = TRUE,
         sortable        = TRUE,
         striped         = TRUE,
@@ -157,34 +157,27 @@ mod_data_dictionary_server <- function(id, schema_data, shared) {
             header           = .hdr("Element"),
             minWidth         = 160,
             defaultSortOrder = "desc",
-            filterInput      = .flt("e.g. NHSNumber")
+            filterInput      = .flt("Search\u2026")
           ),
           type_name    = reactable::colDef(
             header           = .hdr("Type"),
             minWidth         = 160,
             na               = "\u2013",
             defaultSortOrder = "desc",
-            filterInput      = .flt("e.g. Date_Type")
+            filterInput      = .flt("Search\u2026")
           ),
           is_required  = reactable::colDef(
             header           = .hdr("Required"),
             maxWidth         = 95,
             defaultSortOrder = "desc",
             cell             = function(val) if (isTRUE(val)) "Y" else "",
-            filterInput      = .flt("Y")
+            filterInput      = .flt("Search\u2026")
           ),
           path_label   = reactable::colDef(
             header           = .hdr("Path"),
             minWidth         = 220,
             defaultSortOrder = "desc",
-            filterInput      = .flt("e.g. HospitalProviderSpell")
-          ),
-          annotation   = reactable::colDef(
-            header           = .hdr("Description"),
-            minWidth         = 200,
-            na               = "",
-            defaultSortOrder = "desc",
-            filterInput      = .flt("Search description")
+            filterInput      = .flt("Search\u2026")
           )
         )
       )
