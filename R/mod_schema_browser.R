@@ -8,10 +8,11 @@ mod_schema_browser_ui <- function(id) {
   bslib::layout_sidebar(
     sidebar = bslib::sidebar(
       width = 260,
-      shiny::selectInput(
+      shiny::radioButtons(
         ns("cds_code"),
         "CDS Type",
         choices = c(
+          "All" = "all",
           "020 \u2013 Outpatient" = "020",
           "120 \u2013 Finished Birth Episode" = "120",
           "130 \u2013 Finished General Episode" = "130",
@@ -71,14 +72,27 @@ mod_schema_browser_server <- function(id, schema_data) {
 
     cds_els <- shiny::reactive({
       shiny::req(schema_data())
-      dplyr::filter(
-        schema_data()$elements,
+      els <- schema_data()$elements
+      if (input$cds_code == "all") els else dplyr::filter(
+        els,
         purrr::map_lgl(cds_types, ~ input$cds_code %in% .x)
       )
     })
 
     counts <- shiny::reactive({
-      els <- cds_els()
+      all_els <- cds_els()
+
+      # Apply search to get the base counts reflect what is visible
+      term <- search_term()
+      els <- if (!is.null(term) && nchar(trimws(term)) > 0) {
+        dplyr::filter(
+          all_els,
+          stringr::str_detect(element_name, stringr::regex(term, ignore_case = TRUE))
+        )
+      } else {
+        all_els
+      }
+
       ff <- input$field_filter %||% "required"
       primary <- switch(
         ff,
@@ -92,7 +106,7 @@ mod_schema_browser_server <- function(id, schema_data) {
         n_req = sum(els$is_required),
         n_opt = sum(!els$is_required),
         n_primary = nrow(primary),
-        n_with_ancestors = sum(els$xpath %in% ax)
+        n_with_ancestors = sum(all_els$xpath %in% ax)
       )
     })
 
@@ -143,7 +157,7 @@ mod_schema_browser_server <- function(id, schema_data) {
     })
 
     filtered_elements <- shiny::reactive({
-      shiny::req(cds_els())
+      shiny::req(cds_els(), input$field_filter, input$ancestor_mode)
       cds_els <- cds_els()
 
       # Apply field filter
