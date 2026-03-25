@@ -11,11 +11,17 @@ app_ui <- function(request) {
     bslib::page_navbar(
       title = "CDS Visualiser",
       id = "main_nav",
+      selected = "schema_browser",
       theme = bslib::bs_theme(
         version    = 5,
         bootswatch = "flatly",
         primary    = "#005EB8",
         secondary  = "#AEB7BD"
+      ),
+      bslib::nav_panel(
+        title = shiny::tagList(shiny::icon("route"), "Explain CDS"),
+        value = "process_guide",
+        mod_process_guide_ui("process_guide")
       ),
       bslib::nav_panel(
         title = shiny::tagList(shiny::icon("sitemap"), "Schema Browser"),
@@ -26,11 +32,6 @@ app_ui <- function(request) {
         title = shiny::tagList(shiny::icon("table"), "Data Dictionary"),
         value = "data_dictionary",
         mod_data_dictionary_ui("data_dictionary")
-      ),
-      bslib::nav_panel(
-        title = shiny::tagList(shiny::icon("route"), "Process Guide"),
-        value = "process_guide",
-        mod_process_guide_ui("process_guide")
       ),
       bslib::nav_panel(
         title = shiny::tagList(shiny::icon("code"), "Synthetic Examples"),
