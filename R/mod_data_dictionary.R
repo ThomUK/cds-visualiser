@@ -34,9 +34,8 @@ mod_data_dictionary_ui <- function(id) {
 #' data_dictionary Server Functions
 #' @noRd
 #' @importFrom shiny moduleServer reactive req renderUI tags observeEvent updateRadioButtons isolate
-#' @importFrom dplyr filter mutate select
+#' @importFrom dplyr filter select left_join
 #' @importFrom purrr map_lgl
-#' @importFrom stringr str_replace_all
 #' @importFrom reactable renderReactable reactable colDef
 mod_data_dictionary_server <- function(id, schema_data, shared) {
   shiny::moduleServer(id, function(input, output, session) {
@@ -115,11 +114,15 @@ mod_data_dictionary_server <- function(id, schema_data, shared) {
         required = dplyr::filter(els,  is_required),
         optional = dplyr::filter(els, !is_required)
       )
-      dplyr::mutate(els,
-        path_label = stringr::str_replace_all(xpath, "^/", "") |>
-          stringr::str_replace_all("/", " \u203a ")
-      ) |>
-        dplyr::select(element_name, type_name, is_required, path_label)
+      els <- dplyr::select(els, element_name, type_name, is_required)
+      dplyr::left_join(
+        els,
+        dplyr::select(
+          schema_data()$types,
+          type_name, base_type, pattern, max_length, length, min_inclusive, max_inclusive
+        ),
+        by = "type_name"
+      )
     })
 
     output$table <- reactable::renderReactable({
@@ -145,7 +148,7 @@ mod_data_dictionary_server <- function(id, schema_data, shared) {
       }
 
       tbl <- reactable::reactable(
-        dplyr::select(filtered_elements(), element_name, type_name, is_required, path_label),
+        filtered_elements(),
         filterable      = TRUE,
         sortable        = TRUE,
         striped         = TRUE,
@@ -153,29 +156,66 @@ mod_data_dictionary_server <- function(id, schema_data, shared) {
         defaultPageSize = 20,
         elementId       = tbl_id,
         columns = list(
-          element_name = reactable::colDef(
+          element_name  = reactable::colDef(
             header           = .hdr("Element"),
             minWidth         = 160,
             defaultSortOrder = "desc",
             filterInput      = .flt("Search\u2026")
           ),
-          type_name    = reactable::colDef(
+          type_name     = reactable::colDef(
             header           = .hdr("Type"),
-            minWidth         = 160,
+            minWidth         = 140,
             na               = "\u2013",
             defaultSortOrder = "desc",
             filterInput      = .flt("Search\u2026")
           ),
-          is_required  = reactable::colDef(
-            header           = .hdr("Required"),
-            maxWidth         = 95,
+          is_required   = reactable::colDef(
+            header           = .hdr("Req."),
+            maxWidth         = 60,
             defaultSortOrder = "desc",
             cell             = function(val) if (isTRUE(val)) "Y" else "",
+            filterInput      = .flt("Y / \u2013")
+          ),
+          base_type     = reactable::colDef(
+            header           = .hdr("Base type"),
+            minWidth         = 100,
+            na               = "",
+            defaultSortOrder = "desc",
             filterInput      = .flt("Search\u2026")
           ),
-          path_label   = reactable::colDef(
-            header           = .hdr("Path"),
-            minWidth         = 220,
+          pattern       = reactable::colDef(
+            header           = .hdr("Pattern"),
+            minWidth         = 140,
+            na               = "",
+            defaultSortOrder = "desc",
+            filterInput      = .flt("Search\u2026"),
+            cell             = function(val) if (is.na(val) || val == "") "" else shiny::tags$code(style = "font-size:0.8em", val)
+          ),
+          max_length    = reactable::colDef(
+            header           = .hdr("Max len"),
+            maxWidth         = 80,
+            na               = "",
+            defaultSortOrder = "desc",
+            filterInput      = .flt("Search\u2026")
+          ),
+          length        = reactable::colDef(
+            header           = .hdr("Fixed len"),
+            maxWidth         = 85,
+            na               = "",
+            defaultSortOrder = "desc",
+            filterInput      = .flt("Search\u2026")
+          ),
+          min_inclusive = reactable::colDef(
+            header           = .hdr("Min"),
+            maxWidth         = 70,
+            na               = "",
+            defaultSortOrder = "desc",
+            filterInput      = .flt("Search\u2026")
+          ),
+          max_inclusive = reactable::colDef(
+            header           = .hdr("Max"),
+            maxWidth         = 70,
+            na               = "",
             defaultSortOrder = "desc",
             filterInput      = .flt("Search\u2026")
           )
