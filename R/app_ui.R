@@ -67,9 +67,7 @@ golem_add_external_resources <- function() {
     favicon(),
     tags$title("CDS Visualiser"),
     tags$style(HTML("
-      /* Shiny radioButtons uses .radio > label > input + span (Bootstrap 3
-         structure). Make the label flex so span text never wraps under the
-         radio circle. */
+      /* Shiny radioButtons: prevent label text wrapping under the button */
       .radio label {
         display: inline-flex;
         align-items: flex-start;
@@ -79,6 +77,51 @@ golem_add_external_resources <- function() {
         flex-shrink: 0;
         margin-top: 0.25em;
         margin-right: 0;
+      }
+
+      /* Reactable sort indicators: stacked ▲▼ triangles.
+         Grey by default; active triangle turns dark.
+         Covers .rt-sort-right / .rt-sort-left (asc/desc)
+         and .rt-sort (unsorted, aria-sort=none). */
+      .rt-th[aria-sort] .rt-sort-right,
+      .rt-th[aria-sort] .rt-sort-left,
+      .rt-th[aria-sort=none] .rt-sort {
+        display: inline-flex !important;
+        flex-direction: column;
+        align-items: center;
+        padding-left: 4px !important;
+        padding-right: 0 !important;
+        line-height: 0 !important;
+        gap: 1px;
+      }
+      .rt-th[aria-sort] .rt-sort-right::before,
+      .rt-th[aria-sort] .rt-sort-left::before,
+      .rt-th[aria-sort=none] .rt-sort::before {
+        content: '▲';
+        font-size: 0.5em;
+        color: #ccc;
+        line-height: 1;
+      }
+      .rt-th[aria-sort] .rt-sort-right::after,
+      .rt-th[aria-sort] .rt-sort-left::after,
+      .rt-th[aria-sort=none] .rt-sort::after {
+        content: '▼' !important;
+        font-size: 0.5em;
+        color: #ccc !important;
+        line-height: 1;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        opacity: 1 !important;
+      }
+      /* Active ascending: ▲ dark */
+      .rt-th[aria-sort=ascending] .rt-sort-right::before,
+      .rt-th[aria-sort=ascending] .rt-sort-left::before {
+        color: #333;
+      }
+      /* Active descending: ▼ dark */
+      .rt-th[aria-sort=descending] .rt-sort-right::after,
+      .rt-th[aria-sort=descending] .rt-sort-left::after {
+        color: #333 !important;
       }
     "))
   )
