@@ -65,22 +65,43 @@ mod_schema_browser_ui <- function(id) {
 #' @importFrom jsTreeR renderJstree jstree
 mod_schema_browser_server <- function(id, schema_data, shared) {
   shiny::moduleServer(id, function(input, output, session) {
-
     # --- Shared state sync ---
-    shiny::observeEvent(input$cds_code, {
-      if (!identical(shared$cds_code, input$cds_code)) shared$cds_code <- input$cds_code
-    }, ignoreInit = TRUE)
+    shiny::observeEvent(
+      input$cds_code,
+      {
+        if (!identical(shared$cds_code, input$cds_code)) {
+          shared$cds_code <- input$cds_code
+        }
+      },
+      ignoreInit = TRUE
+    )
     shiny::observeEvent(shared$cds_code, {
-      if (!identical(input$cds_code, shared$cds_code))
-        shiny::updateRadioButtons(session, "cds_code", selected = shared$cds_code)
+      if (!identical(input$cds_code, shared$cds_code)) {
+        shiny::updateRadioButtons(
+          session,
+          "cds_code",
+          selected = shared$cds_code
+        )
+      }
     })
 
-    shiny::observeEvent(input$field_filter, {
-      if (!identical(shared$field_filter, input$field_filter)) shared$field_filter <- input$field_filter
-    }, ignoreInit = TRUE)
+    shiny::observeEvent(
+      input$field_filter,
+      {
+        if (!identical(shared$field_filter, input$field_filter)) {
+          shared$field_filter <- input$field_filter
+        }
+      },
+      ignoreInit = TRUE
+    )
     shiny::observeEvent(shared$field_filter, {
-      if (!identical(input$field_filter, shared$field_filter))
-        shiny::updateRadioButtons(session, "field_filter", selected = shared$field_filter)
+      if (!identical(input$field_filter, shared$field_filter)) {
+        shiny::updateRadioButtons(
+          session,
+          "field_filter",
+          selected = shared$field_filter
+        )
+      }
     })
     search_term <- shiny::reactive({
       input$search
@@ -90,10 +111,14 @@ mod_schema_browser_server <- function(id, schema_data, shared) {
     cds_els <- shiny::reactive({
       shiny::req(schema_data())
       els <- schema_data()$elements
-      if (input$cds_code == "all") els else dplyr::filter(
-        els,
-        purrr::map_lgl(cds_types, ~ input$cds_code %in% .x)
-      )
+      if (input$cds_code == "all") {
+        els
+      } else {
+        dplyr::filter(
+          els,
+          purrr::map_lgl(cds_types, ~ input$cds_code %in% .x)
+        )
+      }
     })
 
     counts <- shiny::reactive({
@@ -104,7 +129,10 @@ mod_schema_browser_server <- function(id, schema_data, shared) {
       els <- if (!is.null(term) && nchar(trimws(term)) > 0) {
         dplyr::filter(
           all_els,
-          stringr::str_detect(element_name, stringr::regex(term, ignore_case = TRUE))
+          stringr::str_detect(
+            element_name,
+            stringr::regex(term, ignore_case = TRUE)
+          )
         )
       } else {
         all_els
@@ -118,12 +146,18 @@ mod_schema_browser_server <- function(id, schema_data, shared) {
         optional = dplyr::filter(els, !is_required)
       )
       ax <- unique(unlist(lapply(primary$xpath, .ancestor_xpaths)))
+
+      .n_types <- function(x) length(unique(unlist(x$cds_types)))
       list(
         n_all = nrow(els),
         n_req = sum(els$is_required),
         n_opt = sum(!els$is_required),
         n_primary = nrow(primary),
-        n_with_ancestors = sum(all_els$xpath %in% ax)
+        n_with_ancestors = sum(all_els$xpath %in% ax),
+        n_types_all = .n_types(els),
+        n_types_req = .n_types(dplyr::filter(els, is_required)),
+        n_types_opt = .n_types(dplyr::filter(els, !is_required)),
+        n_types_primary = .n_types(primary)
       )
     })
 
@@ -139,33 +173,34 @@ mod_schema_browser_server <- function(id, schema_data, shared) {
       )
     }
 
+    .fmt_count <- function(n, n_types) paste0(n, " (+", n_types, ")")
+
     output$field_filter_ui <- shiny::renderUI({
       ct <- counts()
       shiny::radioButtons(
         session$ns("field_filter"),
         "Show fields",
         choiceNames = list(
-          .count_label("All", ct$n_all),
-          .count_label("Required only", ct$n_req),
-          .count_label("Optional only", ct$n_opt)
+          .count_label("All",           .fmt_count(ct$n_all, ct$n_types_all)),
+          .count_label("Required only", .fmt_count(ct$n_req, ct$n_types_req)),
+          .count_label("Optional only", .fmt_count(ct$n_opt, ct$n_types_opt))
         ),
         choiceValues = c("all", "required", "optional"),
-        selected = shiny::isolate(input$field_filter) %||% shiny::isolate(shared$field_filter) %||% "required"
+        selected = shiny::isolate(input$field_filter) %||%
+          shiny::isolate(shared$field_filter) %||%
+          "required"
       )
     })
 
     output$ancestor_mode_ui <- shiny::renderUI({
       ct <- counts()
-      anc <- if (ct$n_primary == ct$n_with_ancestors) {
-        as.character(ct$n_with_ancestors)
-      } else {
-        paste0(ct$n_primary, " (+", ct$n_with_ancestors - ct$n_primary, ")")
-      }
+      extra <- ct$n_with_ancestors - ct$n_primary + ct$n_types_primary
+      anc <- paste0(ct$n_primary, " (+", extra, ")")
       shiny::radioButtons(
         session$ns("ancestor_mode"),
         "Structure",
         choiceNames = list(
-          .count_label("Items only", ct$n_primary),
+          .count_label("Items only",        .fmt_count(ct$n_primary, ct$n_types_primary)),
           .count_label("Include ancestors", anc)
         ),
         choiceValues = c("items", "ancestors"),
@@ -223,7 +258,35 @@ mod_schema_browser_server <- function(id, schema_data, shared) {
     output$tree <- jsTreeR::renderJstree({
       els <- shiny::req(filtered_elements())
       shiny::req(nrow(els) > 0)
-      nodes <- .build_schema_tree(els, open_all = TRUE)
+
+      cds_codes <- c("020", "120", "130", "140", "150", "160", "180", "190", "200")
+      cds_labels <- c(
+        "020" = "020 \u2013 Outpatient",
+        "120" = "120 \u2013 Finished Birth Episode",
+        "130" = "130 \u2013 Finished General Episode",
+        "140" = "140 \u2013 Finished Delivery Episode",
+        "150" = "150 \u2013 Other Birth Event",
+        "160" = "160 \u2013 Other Delivery",
+        "180" = "180 \u2013 Unfinished Birth Episode",
+        "190" = "190 \u2013 Unfinished General Episode",
+        "200" = "200 \u2013 Unfinished Delivery Episode"
+      )
+      term <- search_term()
+      hl <- if (!is.null(term) && nchar(trimws(term)) > 0) trimws(term) else NULL
+
+      nodes <- Filter(
+        Negate(is.null),
+        lapply(cds_codes, function(code) {
+          code_els <- dplyr::filter(els, purrr::map_lgl(cds_types, ~ code %in% .x))
+          if (nrow(code_els) == 0) return(NULL)
+          list(
+            text     = cds_labels[[code]],
+            state    = list(opened = TRUE),
+            children = .build_schema_tree(code_els, open_all = TRUE, highlight = hl)
+          )
+        })
+      )
+
       jsTreeR::jstree(nodes, wholerow = TRUE)
     })
 
@@ -244,7 +307,25 @@ mod_schema_browser_server <- function(id, schema_data, shared) {
       is_req <- isTRUE(node_data$is_required)
       label <- sel[[1]]$text %||% ""
 
+      # CDS type header nodes have no xpath — skip detail for those
+      if (nchar(xpath) == 0) {
+        return(shiny::tags$p(
+          shiny::tags$em(
+            "Select an element (not a CDS type header) to see its details."
+          ),
+          style = "color:#888"
+        ))
+      }
+
       sd <- schema_data()
+
+      # Resolve CDS types this element belongs to
+      el_row <- dplyr::filter(sd$elements, xpath == !!xpath)
+      el_cds_types <- if (nrow(el_row) > 0) {
+        sort(unique(unlist(el_row$cds_types)))
+      } else {
+        character(0)
+      }
 
       # Guard against filtering with empty type_nm
       if (nchar(type_nm) > 0) {
@@ -270,6 +351,12 @@ mod_schema_browser_server <- function(id, schema_data, shared) {
                 if (nchar(type_nm) > 0) type_nm else shiny::tags$em("(complex)")
               )
             ),
+            if (length(el_cds_types) > 0) {
+              shiny::tags$tr(
+                shiny::tags$th("Parent CDS Type"),
+                shiny::tags$td(paste(el_cds_types, collapse = ", "))
+              )
+            },
             shiny::tags$tr(
               shiny::tags$th("XPath"),
               shiny::tags$td(
@@ -395,23 +482,33 @@ mod_schema_browser_server <- function(id, schema_data, shared) {
 
 #' Recursively build jsTreeR node list from flat elements table
 #' @noRd
-.build_schema_tree <- function(elements, open_all = FALSE) {
+.build_schema_tree <- function(elements, open_all = FALSE, highlight = NULL) {
   is_root <- !elements$parent_xpath %in% elements$xpath
   roots <- elements[is_root, ]
   lapply(seq_len(nrow(roots)), function(i) {
-    .make_node(roots[i, ], elements, open = TRUE, open_all = open_all)
+    .make_node(roots[i, ], elements, open = TRUE, open_all = open_all, highlight = highlight)
   })
 }
 
 #' Build a single jsTreeR node (with recursive children)
 #' @noRd
-.make_node <- function(row, elements, open = FALSE, open_all = FALSE) {
+.make_node <- function(row, elements, open = FALSE, open_all = FALSE, highlight = NULL) {
   xp <- row$xpath
-  label <- if (isTRUE(row$is_required)) {
-    row$element_name
+
+  name <- if (!is.null(highlight)) {
+    escaped <- gsub("([.+*?^${}()|\\[\\]\\\\])", "\\\\\\1", highlight, perl = TRUE)
+    gsub(
+      paste0("(", escaped, ")"),
+      '<span style="background:#c6efce; border-radius:2px">\\1</span>',
+      row$element_name,
+      ignore.case = TRUE,
+      perl = TRUE
+    )
   } else {
-    paste0(row$element_name, " \u00b7")
+    row$element_name
   }
+
+  label <- if (isTRUE(row$is_required)) name else paste0(name, " \u00b7")
 
   children_rows <- dplyr::filter(elements, parent_xpath == !!xp)
 
@@ -440,7 +537,8 @@ mod_schema_browser_server <- function(id, schema_data, shared) {
         children_rows[i, ],
         elements,
         open = open_all,
-        open_all = open_all
+        open_all = open_all,
+        highlight = highlight
       )
     })
   }
