@@ -3,7 +3,7 @@
 #' @param ... path elements passed to `system.file`
 #' @noRd
 app_sys <- function(...) {
-  system.file(..., package = "cds-visualiser")
+  system.file(..., package = "cdsvisualiser")
 }
 
 #' Read App Config
