@@ -34,7 +34,7 @@ mod_data_dictionary_ui <- function(id) {
 #' data_dictionary Server Functions
 #' @noRd
 #' @importFrom shiny moduleServer reactive req renderUI tags observeEvent updateRadioButtons isolate
-#' @importFrom dplyr filter select left_join
+#' @importFrom dplyr filter mutate select left_join
 #' @importFrom purrr map_lgl
 #' @importFrom reactable renderReactable reactable colDef
 mod_data_dictionary_server <- function(id, schema_data, shared) {
@@ -114,7 +114,10 @@ mod_data_dictionary_server <- function(id, schema_data, shared) {
         required = dplyr::filter(els,  is_required),
         optional = dplyr::filter(els, !is_required)
       )
-      els <- dplyr::select(els, element_name, type_name, is_required)
+      els <- dplyr::mutate(els,
+        cds_type = vapply(cds_types, function(x) paste(sort(x), collapse = ", "), character(1))
+      )
+      els <- dplyr::select(els, cds_type, element_name, type_name, is_required)
       dplyr::left_join(
         els,
         dplyr::select(
@@ -154,8 +157,13 @@ mod_data_dictionary_server <- function(id, schema_data, shared) {
         striped         = TRUE,
         highlight       = TRUE,
         defaultPageSize = 20,
-        elementId       = tbl_id,
         columns = list(
+          cds_type      = reactable::colDef(
+            header           = .hdr("CDS Type"),
+            maxWidth         = 80,
+            defaultSortOrder = "desc",
+            filterInput      = .flt("Search\u2026")
+          ),
           element_name  = reactable::colDef(
             header           = .hdr("Element"),
             minWidth         = 160,
@@ -173,7 +181,7 @@ mod_data_dictionary_server <- function(id, schema_data, shared) {
             header           = .hdr("Req."),
             maxWidth         = 60,
             defaultSortOrder = "desc",
-            cell             = function(val) if (isTRUE(val)) "Y" else "",
+            cell             = function(val) if (isTRUE(val)) "Y" else "N",
             filterInput      = .flt("Y / \u2013")
           ),
           base_type     = reactable::colDef(
