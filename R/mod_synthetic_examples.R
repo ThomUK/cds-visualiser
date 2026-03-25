@@ -1,6 +1,6 @@
 #' synthetic_examples UI Function
 #' @noRd
-#' @importFrom shiny NS checkboxInput actionButton downloadButton icon hr tagList
+#' @importFrom shiny NS radioButtons checkboxInput actionButton downloadButton icon hr tagList tags HTML
 #' @importFrom bslib layout_sidebar sidebar card card_header card_body
 #' @importFrom shinyAce aceEditor
 #' @importFrom reactable reactableOutput
@@ -8,10 +8,16 @@ mod_synthetic_examples_ui <- function(id) {
   ns <- shiny::NS(id)
   bslib::layout_sidebar(
     sidebar = bslib::sidebar(
-      width = 280,
-      shiny::selectInput(
+      width = 260,
+      shiny::tags$style(shiny::HTML(paste0(
+        "#", ns("cds_code"), " .radio:first-child label {",
+        "  opacity: 0.4; pointer-events: none; cursor: default;",
+        "}"
+      ))),
+      shiny::radioButtons(
         ns("cds_code"), "CDS Type",
         choices = c(
+          "All"                                    = "all",
           "020 \u2013 Outpatient"                  = "020",
           "120 \u2013 Finished Birth Episode"      = "120",
           "130 \u2013 Finished General Episode"    = "130",
@@ -60,14 +66,26 @@ mod_synthetic_examples_ui <- function(id) {
 
 #' synthetic_examples Server Functions
 #' @noRd
-#' @importFrom shiny moduleServer req eventReactive observeEvent downloadHandler
+#' @importFrom shiny moduleServer req eventReactive observeEvent updateRadioButtons downloadHandler
 #' @importFrom shinyAce updateAceEditor
 #' @importFrom reactable renderReactable reactable colDef
 #' @importFrom xml2 read_xml xml_find_all xml_name xml_text
 #' @importFrom dplyr select distinct left_join
 #' @importFrom tibble tibble
-mod_synthetic_examples_server <- function(id, schema_data) {
+mod_synthetic_examples_server <- function(id, schema_data, shared) {
   shiny::moduleServer(id, function(input, output, session) {
+
+    # --- Shared state sync ---
+    shiny::observeEvent(input$cds_code, {
+      if (input$cds_code != "all" && !identical(shared$cds_code, input$cds_code))
+        shared$cds_code <- input$cds_code
+    }, ignoreInit = TRUE)
+    shiny::observeEvent(shared$cds_code, {
+      # Synthetic tab has no "all" option — ignore if shared is set to "all"
+      if (!identical(input$cds_code, shared$cds_code) && shared$cds_code != "all")
+        shiny::updateRadioButtons(session, "cds_code", selected = shared$cds_code)
+    })
+
     xml_result <- shiny::eventReactive(input$generate, {
       shiny::req(schema_data())
       generate_synthetic_xml(

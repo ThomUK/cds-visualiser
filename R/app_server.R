@@ -62,5 +62,5 @@ app_server <- function(input, output, session) {
   mod_schema_browser_server("schema_browser", schema_data, shared)
   mod_data_dictionary_server("data_dictionary", schema_data, shared)
   mod_process_guide_server("process_guide")
-  mod_synthetic_examples_server("synthetic_examples", schema_data)
+  mod_synthetic_examples_server("synthetic_examples", schema_data, shared)
 }
