@@ -1,7 +1,7 @@
 #' synthetic_examples UI Function
 #' @noRd
 #' @importFrom shiny NS checkboxInput actionButton downloadButton icon hr tagList
-#' @importFrom bslib layout_sidebar sidebar card card_header
+#' @importFrom bslib layout_sidebar sidebar card card_header card_body
 #' @importFrom shinyAce aceEditor
 #' @importFrom reactable reactableOutput
 mod_synthetic_examples_ui <- function(id) {
@@ -41,14 +41,17 @@ mod_synthetic_examples_ui <- function(id) {
       bslib::card(
         full_screen = TRUE,
         bslib::card_header("Generated XML"),
-        shinyAce::aceEditor(
-          outputId = ns("xml_display"),
-          value    = "# Select a CDS type and click Generate XML",
-          mode     = "xml",
-          theme    = "chrome",
-          readOnly = TRUE,
-          height   = "500px",
-          fontSize = 13
+        bslib::card_body(
+          style = "padding:0; overflow:hidden",
+          shinyAce::aceEditor(
+            outputId = ns("xml_display"),
+            value    = "# Select a CDS type and click Generate XML",
+            mode     = "xml",
+            theme    = "chrome",
+            readOnly = TRUE,
+            height   = "450px",
+            fontSize = 13
+          )
         )
       )
     )
