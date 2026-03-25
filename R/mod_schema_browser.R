@@ -24,16 +24,8 @@ mod_schema_browser_ui <- function(id) {
         ),
         selected = "130"
       ),
-      shiny::radioButtons(
-        ns("field_filter"),
-        "Show fields",
-        choices = c(
-          "All" = "all",
-          "Required only" = "required",
-          "Optional only" = "optional"
-        ),
-        selected = "required"
-      )
+      shiny::uiOutput(ns("field_filter_ui")),
+      shiny::uiOutput(ns("ancestor_mode_ui"))
     ),
     bslib::layout_columns(
       col_widths = c(5, 7),
@@ -45,7 +37,8 @@ mod_schema_browser_ui <- function(id) {
           shiny::div(
             style = "flex:1; margin-left:0.75rem",
             shiny::textInput(
-              ns("search"), NULL,
+              ns("search"),
+              NULL,
               placeholder = "Search\u2026",
               width = "100%"
             )
@@ -71,37 +64,135 @@ mod_schema_browser_ui <- function(id) {
 #' @importFrom jsTreeR renderJstree jstree
 mod_schema_browser_server <- function(id, schema_data) {
   shiny::moduleServer(id, function(input, output, session) {
+    search_term <- shiny::reactive({
+      input$search
+    }) |>
+      shiny::debounce(300)
 
-    search_term <- shiny::reactive({ input$search }) |> shiny::debounce(300)
+    cds_els <- shiny::reactive({
+      shiny::req(schema_data())
+      dplyr::filter(
+        schema_data()$elements,
+        purrr::map_lgl(cds_types, ~ input$cds_code %in% .x)
+      )
+    })
+
+    counts <- shiny::reactive({
+      els <- cds_els()
+      ff <- input$field_filter %||% "required"
+      primary <- switch(
+        ff,
+        all = els,
+        required = dplyr::filter(els, is_required),
+        optional = dplyr::filter(els, !is_required)
+      )
+      ax <- unique(unlist(lapply(primary$xpath, .ancestor_xpaths)))
+      list(
+        n_all = nrow(els),
+        n_req = sum(els$is_required),
+        n_opt = sum(!els$is_required),
+        n_primary = nrow(primary),
+        n_with_ancestors = sum(els$xpath %in% ax)
+      )
+    })
+
+    # Helper: label + right-aligned count on one row
+    .count_label <- function(text, count_html) {
+      shiny::tags$span(
+        style = "display:inline-flex; justify-content:space-between; width:190px; vertical-align:middle",
+        shiny::tags$span(text),
+        shiny::tags$span(
+          count_html,
+          style = "color:#888; font-size:0.85em; text-align:right; margin-left:0.5rem"
+        )
+      )
+    }
+
+    output$field_filter_ui <- shiny::renderUI({
+      ct <- counts()
+      shiny::radioButtons(
+        session$ns("field_filter"),
+        "Show fields",
+        choiceNames = list(
+          .count_label("All", ct$n_all),
+          .count_label("Required only", ct$n_req),
+          .count_label("Optional only", ct$n_opt)
+        ),
+        choiceValues = c("all", "required", "optional"),
+        selected = shiny::isolate(input$field_filter) %||% "required"
+      )
+    })
+
+    output$ancestor_mode_ui <- shiny::renderUI({
+      ct <- counts()
+      anc <- if (ct$n_primary == ct$n_with_ancestors) {
+        as.character(ct$n_with_ancestors)
+      } else {
+        paste0(ct$n_primary, " (+", ct$n_with_ancestors - ct$n_primary, ")")
+      }
+      shiny::radioButtons(
+        session$ns("ancestor_mode"),
+        "Structure",
+        choiceNames = list(
+          .count_label("Items only", ct$n_primary),
+          .count_label("Include ancestors", anc)
+        ),
+        choiceValues = c("items", "ancestors"),
+        selected = shiny::isolate(input$ancestor_mode) %||% "ancestors"
+      )
+    })
 
     filtered_elements <- shiny::reactive({
-      shiny::req(schema_data())
-      code <- input$cds_code
-      els <- dplyr::filter(
-        schema_data()$elements,
-        purrr::map_lgl(cds_types, ~ code %in% .x)
-      )
-      els <- switch(input$field_filter,
-        required = dplyr::filter(els, is_required),
-        optional = dplyr::filter(els, !is_required),
-        els
-      )
+      shiny::req(cds_els())
+      cds_els <- cds_els()
+
+      # Apply field filter
+      if (input$field_filter == "all") {
+        els <- cds_els
+      } else {
+        primary <- switch(
+          input$field_filter,
+          required = dplyr::filter(cds_els, is_required),
+          optional = dplyr::filter(cds_els, !is_required)
+        )
+        if (input$ancestor_mode == "ancestors") {
+          ancestor_xpaths <- unique(unlist(lapply(
+            primary$xpath,
+            .ancestor_xpaths
+          )))
+          els <- dplyr::filter(cds_els, xpath %in% ancestor_xpaths)
+        } else {
+          els <- primary
+        }
+      }
+
+      # Apply search filter
       term <- search_term()
       if (!is.null(term) && nchar(trimws(term)) > 0) {
-        # Find matching elements, then expand to include all ancestors
-        matching <- dplyr::filter(els, stringr::str_detect(element_name, stringr::regex(term, ignore_case = TRUE)))
-        ancestor_xpaths <- unique(unlist(lapply(matching$xpath, .ancestor_xpaths)))
-        els <- dplyr::filter(els, xpath %in% ancestor_xpaths)
+        matching <- dplyr::filter(
+          els,
+          stringr::str_detect(
+            element_name,
+            stringr::regex(term, ignore_case = TRUE)
+          )
+        )
+        if (input$ancestor_mode == "ancestors") {
+          ancestor_xpaths <- unique(unlist(lapply(
+            matching$xpath,
+            .ancestor_xpaths
+          )))
+          els <- dplyr::filter(els, xpath %in% ancestor_xpaths)
+        } else {
+          els <- matching
+        }
       }
       els
     })
 
     output$tree <- jsTreeR::renderJstree({
-      els  <- shiny::req(filtered_elements())
+      els <- shiny::req(filtered_elements())
       shiny::req(nrow(els) > 0)
-      term <- search_term()
-      open_all <- !is.null(term) && nchar(trimws(term)) > 0
-      nodes <- .build_schema_tree(els, open_all = open_all)
+      nodes <- .build_schema_tree(els, open_all = TRUE)
       jsTreeR::jstree(nodes, wholerow = TRUE)
     })
 
@@ -265,14 +356,18 @@ mod_schema_browser_server <- function(id, schema_data) {
 .ancestor_xpaths <- function(xpath) {
   parts <- strsplit(xpath, "/")[[1]]
   parts <- parts[nchar(parts) > 0]
-  vapply(seq_along(parts), function(i) paste0("/", paste(parts[1:i], collapse = "/")), character(1))
+  vapply(
+    seq_along(parts),
+    function(i) paste0("/", paste(parts[1:i], collapse = "/")),
+    character(1)
+  )
 }
 
 #' Recursively build jsTreeR node list from flat elements table
 #' @noRd
 .build_schema_tree <- function(elements, open_all = FALSE) {
   is_root <- !elements$parent_xpath %in% elements$xpath
-  roots   <- elements[is_root, ]
+  roots <- elements[is_root, ]
   lapply(seq_len(nrow(roots)), function(i) {
     .make_node(roots[i, ], elements, open = TRUE, open_all = open_all)
   })
@@ -293,18 +388,30 @@ mod_schema_browser_server <- function(id, schema_data) {
   node <- list(
     text = label,
     data = list(
-      xpath        = xp,
+      xpath = xp,
       element_name = row$element_name,
-      type_name    = row$type_name %||% "",
-      is_required  = isTRUE(row$is_required),
-      annotation   = row$annotation %||% ""
+      type_name = row$type_name %||% "",
+      is_required = isTRUE(row$is_required),
+      annotation = row$annotation %||% ""
     ),
-    state = list(opened = open || open_all)
+    state = list(opened = open || open_all),
+    a_attr = list(
+      style = if (!isTRUE(row$is_required)) {
+        "background-color:#e0e0e0; border-radius:3px"
+      } else {
+        ""
+      }
+    )
   )
 
   if (nrow(children_rows) > 0) {
     node$children <- lapply(seq_len(nrow(children_rows)), function(i) {
-      .make_node(children_rows[i, ], elements, open = open_all, open_all = open_all)
+      .make_node(
+        children_rows[i, ],
+        elements,
+        open = open_all,
+        open_all = open_all
+      )
     })
   }
 
