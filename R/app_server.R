@@ -1,9 +1,11 @@
 #' The application server-side
 #'
 #' @param input,output,session Internal parameters for shiny
-#' @importFrom shiny reactiveVal observeEvent showNotification removeNotification
+#' @importFrom shiny reactiveVal reactiveValues observeEvent showNotification removeNotification
 #' @noRd
 app_server <- function(input, output, session) {
+  # Shared sidebar filter state — persists when switching tabs
+  shared <- shiny::reactiveValues(cds_code = "130", field_filter = "required")
   # --- Shared schema data reactive ---
   schema_rds_path <- system.file(
     "extdata/schema_data.rds",
@@ -57,8 +59,8 @@ app_server <- function(input, output, session) {
   })
 
   # --- Module servers ---
-  mod_schema_browser_server("schema_browser", schema_data)
-  mod_data_dictionary_server("data_dictionary", schema_data)
+  mod_schema_browser_server("schema_browser", schema_data, shared)
+  mod_data_dictionary_server("data_dictionary", schema_data, shared)
   mod_process_guide_server("process_guide")
   mod_synthetic_examples_server("synthetic_examples", schema_data)
 }

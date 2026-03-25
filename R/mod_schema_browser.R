@@ -58,13 +58,30 @@ mod_schema_browser_ui <- function(id) {
 
 #' schema_browser Server Functions
 #' @noRd
-#' @importFrom shiny moduleServer reactive debounce req renderUI tagList tags
+#' @importFrom shiny moduleServer reactive debounce req renderUI tagList tags observeEvent updateRadioButtons isolate
 #' @importFrom dplyr filter
 #' @importFrom purrr map_lgl
 #' @importFrom stringr regex str_detect
 #' @importFrom jsTreeR renderJstree jstree
-mod_schema_browser_server <- function(id, schema_data) {
+mod_schema_browser_server <- function(id, schema_data, shared) {
   shiny::moduleServer(id, function(input, output, session) {
+
+    # --- Shared state sync ---
+    shiny::observeEvent(input$cds_code, {
+      if (!identical(shared$cds_code, input$cds_code)) shared$cds_code <- input$cds_code
+    }, ignoreInit = TRUE)
+    shiny::observeEvent(shared$cds_code, {
+      if (!identical(input$cds_code, shared$cds_code))
+        shiny::updateRadioButtons(session, "cds_code", selected = shared$cds_code)
+    })
+
+    shiny::observeEvent(input$field_filter, {
+      if (!identical(shared$field_filter, input$field_filter)) shared$field_filter <- input$field_filter
+    }, ignoreInit = TRUE)
+    shiny::observeEvent(shared$field_filter, {
+      if (!identical(input$field_filter, shared$field_filter))
+        shiny::updateRadioButtons(session, "field_filter", selected = shared$field_filter)
+    })
     search_term <- shiny::reactive({
       input$search
     }) |>
@@ -133,7 +150,7 @@ mod_schema_browser_server <- function(id, schema_data) {
           .count_label("Optional only", ct$n_opt)
         ),
         choiceValues = c("all", "required", "optional"),
-        selected = shiny::isolate(input$field_filter) %||% "required"
+        selected = shiny::isolate(input$field_filter) %||% shiny::isolate(shared$field_filter) %||% "required"
       )
     })
 
