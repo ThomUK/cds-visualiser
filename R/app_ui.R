@@ -38,6 +38,11 @@ app_ui <- function(request) {
         value = "synthetic_examples",
         mod_synthetic_examples_ui("synthetic_examples")
       ),
+      bslib::nav_panel(
+        title = shiny::tagList(shiny::icon("star"), "Make CDS Fun"),
+        value = "make_cds_fun",
+        mod_make_cds_fun_ui("make_cds_fun")
+      ),
       bslib::nav_spacer(),
       bslib::nav_item(
         shinyWidgets::actionBttn(

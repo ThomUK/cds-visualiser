@@ -63,4 +63,5 @@ app_server <- function(input, output, session) {
   mod_data_dictionary_server("data_dictionary", schema_data, shared)
   mod_process_guide_server("process_guide")
   mod_synthetic_examples_server("synthetic_examples", schema_data, shared)
+  mod_make_cds_fun_server("make_cds_fun")
 }
